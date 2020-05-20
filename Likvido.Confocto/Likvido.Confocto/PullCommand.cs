@@ -6,9 +6,9 @@
 
     public static class PullCommand
     {
-        public static void Run(string file, string context, string secretsName)
+        public static void Run(string file, string secretsName)
         {
-            var secrets = KubeCtl.GetSecrets(context, secretsName);
+            var secrets = KubeCtl.GetSecrets(secretsName);
 
             if (string.IsNullOrWhiteSpace(file))
             {

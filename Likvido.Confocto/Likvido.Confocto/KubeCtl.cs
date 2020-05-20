@@ -8,7 +8,7 @@ namespace Likvido.Confocto
 {
     public static class KubeCtl
     {
-        public static IReadOnlyList<Secret> GetSecrets(string context, string secretsName)
+        public static IReadOnlyList<Secret> GetSecrets(string secretsName)
         {
             var rawSecrets = ExecuteCommand($"get secret {secretsName} -o json");
             dynamic deserialized = JsonConvert.DeserializeObject(rawSecrets);
@@ -23,6 +23,18 @@ namespace Likvido.Confocto
             return secrets;
         }
 
+        public static string GetCurrentContext()
+        {
+            return ExecuteCommand("config current-context").TrimEnd('\n');
+        }
+
+        public static bool TrySetContext(string context)
+        {
+            var result = ExecuteCommand($"config use-context {context}");
+
+            return !result.ToLowerInvariant().StartsWith("error");
+        }
+
         private static string ExecuteCommand(string command)
         {
             using var kubectl = new Process();
@@ -32,11 +44,13 @@ namespace Likvido.Confocto
             kubectl.StartInfo.UseShellExecute = false;
             kubectl.StartInfo.CreateNoWindow = true;
             kubectl.StartInfo.RedirectStandardOutput = true;
+            kubectl.StartInfo.RedirectStandardError = true;
 
             kubectl.Start();
             kubectl.WaitForExit();
 
-            return kubectl.StandardOutput.ReadToEnd();
+            return kubectl.StandardOutput.ReadToEnd()
+                + kubectl.StandardError.ReadToEnd();
         }
     }
 }

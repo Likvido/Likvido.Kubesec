@@ -40,7 +40,23 @@
             cmd.Handler = CommandHandler.Create(
                 (string output, string context, string secret) =>
                 {
-                    PullCommand.Run(output, context, secret);
+                    var previousContext = KubeCtl.GetCurrentContext();
+
+                    if (!KubeCtl.TrySetContext(context))
+                    {
+                        Console.WriteLine("The given context does not exist");
+
+                        return 1;
+                    }
+
+                    PullCommand.Run(output, secret);
+
+                    if (previousContext != context)
+                    {
+                        KubeCtl.TrySetContext(previousContext);
+                    }
+
+                    return 0;
                 });
 
             return cmd;
