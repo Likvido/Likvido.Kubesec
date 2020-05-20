@@ -40,16 +40,7 @@
             cmd.Handler = CommandHandler.Create(
                 (string output, string context, string secret) =>
                 {
-                    if (string.IsNullOrWhiteSpace(secret))
-                    {
-                        Console.WriteLine("secret is required");
-
-                        return 1;
-                    }
-
                     PullCommand.Run(output, context, secret);
-
-                    return 0;
                 });
 
             return cmd;
