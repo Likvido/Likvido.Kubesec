@@ -1,5 +1,6 @@
 ﻿namespace Likvido.Confocto
 {
+    using System;
     using System.CommandLine;
     using System.CommandLine.Invocation;
     using System.Threading.Tasks;
@@ -21,11 +22,25 @@
         {
             var cmd = new Command("pull", "Pulls secrets from kubernetes to a local file")
             {
+                new Argument<string>("file", "The file to write to"),
                 new Option<string>(new string[] { "--context", "-c" }, "The kubectl config context to use"),
-                new Option<string>(new string[] { "--file", "-f" }, "The file to write to")
+                new Option<string>(new string[] { "--secret", "-s" }, "The name of the secret in kubernetes")
             };
 
-            cmd.Handler = CommandHandler.Create<string, string>(PullCommand.Run);
+            cmd.Handler = CommandHandler.Create(
+                (string file, string context, string secret) =>
+                {
+                    if (string.IsNullOrWhiteSpace(file))
+                    {
+                        Console.WriteLine("file is required");
+
+                        return 1;
+                    }
+
+                    PullCommand.Run(file, context, secret);
+
+                    return 0;
+                });
 
             return cmd;
         }

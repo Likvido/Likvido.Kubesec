@@ -1,13 +1,20 @@
 ﻿namespace Likvido.Confocto
 {
-    using System;
+    using System.IO;
 
     public static class PullCommand
     {
-        public static void Run(string context, string file)
+        public static void Run(string file, string context, string secretsName)
         {
-            Console.WriteLine($"Pull called with context '{context}' and file '{file}'");
-            Console.WriteLine("kthxbye");
+            var secrets = KubeCtl.GetSecrets(context, secretsName);
+
+            using var fileStream = File.OpenWrite(file);
+            using var streamWriter = new StreamWriter(fileStream);
+
+            foreach (var secret in secrets)
+            {
+                streamWriter.WriteLine($"{secret.Key}={secret.Value}");
+            }
         }
     }
 }
