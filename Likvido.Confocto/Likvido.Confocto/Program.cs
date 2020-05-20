@@ -3,12 +3,22 @@
     using System;
     using System.CommandLine;
     using System.CommandLine.Invocation;
+    using System.CommandLine.Rendering;
     using System.Threading.Tasks;
 
     public class Program
     {
-        public static async Task<int> Main(string[] args)
+        public static InvocationContext invocationContext;
+        public static ConsoleRenderer consoleRenderer;
+
+        public static async Task<int> Main(InvocationContext invocationContext, string[] args)
         {
+            Program.invocationContext = invocationContext;
+            consoleRenderer = new ConsoleRenderer(
+              invocationContext.Console,
+              mode: invocationContext.BindingContext.OutputMode(),
+              resetAfterRender: true);
+
             var rootCommand = new RootCommand("Kubernetes secret configuration helper")
             {
                 CreatePullCommand(),
@@ -22,22 +32,22 @@
         {
             var cmd = new Command("pull", "Pulls secrets from kubernetes to a local file")
             {
-                new Argument<string>("file", "The file to write to"),
+                new Argument<string>("secret", "The name of the secret in kubernetes"),
                 new Option<string>(new string[] { "--context", "-c" }, "The kubectl config context to use"),
-                new Option<string>(new string[] { "--secret", "-s" }, "The name of the secret in kubernetes")
+                new Option<string>(new string[] { "--output", "-o" }, "The file to write to")
             };
 
             cmd.Handler = CommandHandler.Create(
-                (string file, string context, string secret) =>
+                (string output, string context, string secret) =>
                 {
-                    if (string.IsNullOrWhiteSpace(file))
+                    if (string.IsNullOrWhiteSpace(secret))
                     {
-                        Console.WriteLine("file is required");
+                        Console.WriteLine("secret is required");
 
                         return 1;
                     }
 
-                    PullCommand.Run(file, context, secret);
+                    PullCommand.Run(output, context, secret);
 
                     return 0;
                 });

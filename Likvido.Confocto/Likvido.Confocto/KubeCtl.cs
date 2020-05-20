@@ -8,16 +8,16 @@ namespace Likvido.Confocto
 {
     public static class KubeCtl
     {
-        public static Dictionary<string, string> GetSecrets(string context, string secretsName)
+        public static IReadOnlyList<Secret> GetSecrets(string context, string secretsName)
         {
             var rawSecrets = ExecuteCommand($"get secret {secretsName} -o json");
             dynamic deserialized = JsonConvert.DeserializeObject(rawSecrets);
 
-            var secrets = new Dictionary<string, string>();
+            var secrets = new List<Secret>();
 
             foreach (var secret in deserialized.data.Children())
             {
-                secrets.Add(secret.Name, Encoding.UTF8.GetString(Convert.FromBase64String(secret.Value.Value)));
+                secrets.Add(new Secret(secret.Name, Encoding.UTF8.GetString(Convert.FromBase64String(secret.Value.Value))));
             }
 
             return secrets;
