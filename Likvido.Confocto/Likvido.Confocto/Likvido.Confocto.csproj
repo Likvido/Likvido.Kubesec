@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <OutputType>Exe</OutputType>
@@ -6,6 +6,11 @@
     <PackAsTool>true</PackAsTool>
     <ToolCommandName>confocto</ToolCommandName>
     <PackageOutputPath>./nupkg</PackageOutputPath>
+    <Version>0.0.1</Version>
   </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="System.CommandLine" Version="2.0.0-beta1.20253.1" />
+  </ItemGroup>
 
 </Project>
