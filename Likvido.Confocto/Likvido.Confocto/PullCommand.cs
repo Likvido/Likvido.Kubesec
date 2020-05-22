@@ -6,7 +6,7 @@
 
     public static class PullCommand
     {
-        public static void Run(string file, string secretsName)
+        public static void Run(string file, string secretsName, string context)
         {
             var secrets = KubeCtl.GetSecrets(secretsName);
 
@@ -16,7 +16,7 @@
             }
             else
             {
-                WriteToFile(file, secrets);
+                WriteToFile(file, secrets, context, secretsName);
             }
         }
 
@@ -34,10 +34,15 @@
             screen.Render();
         }
 
-        private static void WriteToFile(string file, IReadOnlyList<Secret> secrets)
+        private static void WriteToFile(string file, IReadOnlyList<Secret> secrets, string context, string secretsName)
         {
             using var fileStream = File.OpenWrite(file);
             using var streamWriter = new StreamWriter(fileStream);
+
+            streamWriter.WriteLine("#######################################");
+            streamWriter.WriteLine($"# Context: {context}");
+            streamWriter.WriteLine($"# Secret: {secretsName}");
+            streamWriter.WriteLine("#######################################");
 
             foreach (var secret in secrets)
             {

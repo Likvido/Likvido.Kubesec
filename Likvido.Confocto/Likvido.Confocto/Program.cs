@@ -49,7 +49,7 @@
                         return 1;
                     }
 
-                    PullCommand.Run(output, secret);
+                    PullCommand.Run(output, secret, context);
 
                     if (previousContext != context)
                     {
