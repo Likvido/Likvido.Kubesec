@@ -71,11 +71,37 @@
         {
             var cmd = new Command("push", "Pushes secrets from a local file into kubernetes")
             {
+                new Argument<string>("file", "The file to read from"),
                 new Option<string>(new string[] { "--context", "-c" }, "The kubectl config context to use"),
-                new Option<string>(new string[] { "--file", "-f" }, "The file to read from")
+                new Option<string>(new string[] { "--secret", "-s" }, "The name of the secret in kubernetes")
             };
 
-            cmd.Handler = CommandHandler.Create<string, string>(PushCommand.Run);
+            cmd.Handler = CommandHandler.Create(
+                (string file, string context, string secret) =>
+                {
+                    var previousContext = KubeCtl.GetCurrentContext();
+
+                    if (string.IsNullOrWhiteSpace(context))
+                    {
+                        Console.WriteLine($"No context specified, using current context: {context}");
+                        context = previousContext;
+                    }
+                    else if (previousContext != context && !KubeCtl.TrySetContext(context))
+                    {
+                        Console.WriteLine("The given context does not exist");
+
+                        return 1;
+                    }
+
+                    PushCommand.Run(file, context, secret);
+
+                    if (previousContext != context)
+                    {
+                        KubeCtl.TrySetContext(previousContext);
+                    }
+
+                    return 0;
+                });
 
             return cmd;
         }
