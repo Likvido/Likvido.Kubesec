@@ -2,7 +2,7 @@
 Tool to ease the management of Kubernetes secrets
 
 ## Requirements
-To pull secrets from a Kubernetes cluster, you first need to have the [kubectl](https://kubernetes.io/docs/tasks/tools/install-kubectl/) tool installed and configured for your cluster.
+[kubectl](https://kubernetes.io/docs/tasks/tools/install-kubectl/) needs to be installed and configured for your cluster.
 
 ## Installation
 Install this tool via dotnet global tools:
