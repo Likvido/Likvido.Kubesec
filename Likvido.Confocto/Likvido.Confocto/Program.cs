@@ -64,7 +64,7 @@
             return cmd;
         }
 
-        private static int SetContextAndRunCommand(string context, Action<string> command)
+        private static int SetContextAndRunCommand(string context, Func<string, int> command)
         {
             var previousContext = KubeCtl.GetCurrentContext();
 
@@ -80,14 +80,17 @@
                 return 1;
             }
 
-            command(context);
-
-            if (previousContext != context)
+            try
             {
-                KubeCtl.TrySetContext(previousContext);
+                return command(context);
             }
-
-            return 0;
+            finally
+            {
+                if (previousContext != context)
+                {
+                    KubeCtl.TrySetContext(previousContext);
+                }
+            }
         }
     }
 }

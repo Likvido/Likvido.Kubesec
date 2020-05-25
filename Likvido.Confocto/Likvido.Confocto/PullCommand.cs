@@ -6,7 +6,7 @@
 
     public static class PullCommand
     {
-        public static void Run(string file, string secretsName, string context)
+        public static int Run(string file, string secretsName, string context)
         {
             var secrets = KubeCtl.GetSecrets(secretsName);
 
@@ -18,6 +18,8 @@
             {
                 WriteToFile(file, secrets, context, secretsName);
             }
+
+            return 0;
         }
 
         private static void RenderToConsole(IReadOnlyList<Secret> secrets)
