@@ -4,6 +4,14 @@ Tool to ease the management of Kubernetes secrets
 ## Requirements
 To pull secrets from a Kubernetes cluster, you first need to have the [kubectl](https://kubernetes.io/docs/tasks/tools/install-kubectl/) tool installed and configured for your cluster.
 
+## Installation
+Install this tool via dotnet global tools:
+```
+dotnet tool install --global Likvido.Confocto
+```
+
+https://www.nuget.org/packages/Likvido.Confocto
+
 ## How to pull secrets
 
 This is the command to pull secrets:
