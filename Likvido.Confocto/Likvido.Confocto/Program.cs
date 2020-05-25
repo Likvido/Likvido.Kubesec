@@ -42,7 +42,12 @@
                 {
                     var previousContext = KubeCtl.GetCurrentContext();
 
-                    if (!KubeCtl.TrySetContext(context))
+                    if (string.IsNullOrWhiteSpace(context))
+                    {
+                        Console.WriteLine($"No context specified, using current context: {context}");
+                        context = previousContext;
+                    }
+                    else if (previousContext != context && !KubeCtl.TrySetContext(context))
                     {
                         Console.WriteLine("The given context does not exist");
 
