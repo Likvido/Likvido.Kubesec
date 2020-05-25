@@ -38,6 +38,11 @@
 
         private static void WriteToFile(string file, IReadOnlyList<Secret> secrets, string context, string secretsName)
         {
+            if (File.Exists(file))
+            {
+                File.Delete(file);
+            }
+
             using var fileStream = File.OpenWrite(file);
             using var streamWriter = new StreamWriter(fileStream);
 
