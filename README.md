@@ -1,10 +1,10 @@
 # Likvido.Confocto
 Tool to ease the management of Kubernetes secrets
 
-# Requirements
+## Requirements
 To pull secrets from a Kubernetes cluster, you first need to have the [kubectl](https://kubernetes.io/docs/tasks/tools/install-kubectl/) tool installed and configured for your cluster.
 
-# How to pull secrets
+## How to pull secrets
 
 This is the command to pull secrets:
 ```
@@ -19,7 +19,7 @@ confocto pull sync-creditors --context staging-windows --output secrets.env
 If you do not specify `--context`, then it will use whatever context is currently active in kubectl
 If you do not specify `--output`, then it will display the data inside the console in a table format
 
-# How to push secrets
+## How to push secrets
 
 This is the command to push secrets:
 ```
@@ -33,7 +33,7 @@ confocto push secrets.env --context staging-windows --secret sync-creditors
 
 If you do not specify `--context`, then it will use whatever context is currently active in kubectl
 
-# File header
+## File header
 
 When you pull secrets using confocto and store them in a file, then it will include a file header looking something like this:
 ```
