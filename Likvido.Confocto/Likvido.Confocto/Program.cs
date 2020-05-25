@@ -40,28 +40,7 @@
             cmd.Handler = CommandHandler.Create(
                 (string output, string context, string secret) =>
                 {
-                    var previousContext = KubeCtl.GetCurrentContext();
-
-                    if (string.IsNullOrWhiteSpace(context))
-                    {
-                        Console.WriteLine($"No context specified, using current context: {context}");
-                        context = previousContext;
-                    }
-                    else if (previousContext != context && !KubeCtl.TrySetContext(context))
-                    {
-                        Console.WriteLine("The given context does not exist");
-
-                        return 1;
-                    }
-
-                    PullCommand.Run(output, secret, context);
-
-                    if (previousContext != context)
-                    {
-                        KubeCtl.TrySetContext(previousContext);
-                    }
-
-                    return 0;
+                    return SetContextAndRunCommand(context, (c) => PullCommand.Run(output, secret, c));
                 });
 
             return cmd;
@@ -79,31 +58,36 @@
             cmd.Handler = CommandHandler.Create(
                 (string file, string context, string secret) =>
                 {
-                    var previousContext = KubeCtl.GetCurrentContext();
-
-                    if (string.IsNullOrWhiteSpace(context))
-                    {
-                        Console.WriteLine($"No context specified, using current context: {context}");
-                        context = previousContext;
-                    }
-                    else if (previousContext != context && !KubeCtl.TrySetContext(context))
-                    {
-                        Console.WriteLine("The given context does not exist");
-
-                        return 1;
-                    }
-
-                    PushCommand.Run(file, context, secret);
-
-                    if (previousContext != context)
-                    {
-                        KubeCtl.TrySetContext(previousContext);
-                    }
-
-                    return 0;
+                    return SetContextAndRunCommand(context, (c) => PushCommand.Run(file, c, secret));
                 });
 
             return cmd;
+        }
+
+        private static int SetContextAndRunCommand(string context, Action<string> command)
+        {
+            var previousContext = KubeCtl.GetCurrentContext();
+
+            if (string.IsNullOrWhiteSpace(context))
+            {
+                Console.WriteLine($"No context specified, using current context: {previousContext}");
+                context = previousContext;
+            }
+            else if (previousContext != context && !KubeCtl.TrySetContext(context))
+            {
+                Console.WriteLine("The given context does not exist");
+
+                return 1;
+            }
+
+            command(context);
+
+            if (previousContext != context)
+            {
+                KubeCtl.TrySetContext(previousContext);
+            }
+
+            return 0;
         }
     }
 }
