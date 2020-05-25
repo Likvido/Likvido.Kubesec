@@ -28,6 +28,20 @@ namespace Likvido.Confocto
             return secrets;
         }
 
+        public static bool ApplyFile(string file)
+        {
+            var result = ExecuteCommand($"apply -f {file}");
+
+            if (result.ToLowerInvariant().StartsWith("error"))
+            {
+                Console.Error.WriteLine(result);
+
+                return false;
+            }
+
+            return true;
+        }
+
         public static string GetCurrentContext()
         {
             return ExecuteCommand("config current-context").TrimEnd('\n');
