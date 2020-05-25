@@ -10,10 +10,15 @@ namespace Likvido.Confocto
     {
         public static IReadOnlyList<Secret> GetSecrets(string secretsName)
         {
-            var rawSecrets = ExecuteCommand($"get secret {secretsName} -o json");
-            dynamic deserialized = JsonConvert.DeserializeObject(rawSecrets);
-
             var secrets = new List<Secret>();
+            var result = ExecuteCommand($"get secret {secretsName} -o json");
+
+            if (result.ToLowerInvariant().StartsWith("error"))
+            {
+                return secrets;
+            }
+
+            dynamic deserialized = JsonConvert.DeserializeObject(result);
 
             foreach (var secret in deserialized.data.Children())
             {

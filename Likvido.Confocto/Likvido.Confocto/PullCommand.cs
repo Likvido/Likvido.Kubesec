@@ -3,12 +3,18 @@
     using System.Collections.Generic;
     using System.CommandLine.Rendering.Views;
     using System.IO;
+    using System.Linq;
 
     public static class PullCommand
     {
         public static int Run(string file, string secretsName, string context)
         {
             var secrets = KubeCtl.GetSecrets(secretsName);
+
+            if (!secrets.Any())
+            {
+                return 0;
+            }
 
             if (string.IsNullOrWhiteSpace(file))
             {
