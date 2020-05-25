@@ -70,7 +70,7 @@
 
             if (string.IsNullOrWhiteSpace(context))
             {
-                Console.WriteLine($"No context specified, using current context: {previousContext}");
+                Console.WriteLine($"Using context: {previousContext}");
                 context = previousContext;
             }
             else if (previousContext != context && !KubeCtl.TrySetContext(context))
