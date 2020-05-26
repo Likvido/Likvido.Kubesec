@@ -1,4 +1,4 @@
-﻿namespace Likvido.Confocto
+﻿namespace Likvido.Kubesec
 {
     public class Secret
     {

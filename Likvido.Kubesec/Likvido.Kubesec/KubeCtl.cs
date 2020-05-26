@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Text;
 
-namespace Likvido.Confocto
+namespace Likvido.Kubesec
 {
     public static class KubeCtl
     {

@@ -1,4 +1,4 @@
-﻿namespace Likvido.Confocto
+﻿namespace Likvido.Kubesec
 {
     using System;
     using System.Collections.Generic;
