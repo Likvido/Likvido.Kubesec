@@ -2,7 +2,6 @@
 {
     using System.Collections.Generic;
     using System.CommandLine.Rendering.Views;
-    using System.IO;
     using System.Linq;
 
     public static class PullCommand
@@ -22,7 +21,7 @@
             }
             else
             {
-                WriteToFile(file, secrets, context, secretsName);
+                Utils.WriteToFile(file, secrets, context, secretsName);
             }
 
             return 0;
@@ -40,27 +39,6 @@
             };
 
             screen.Render();
-        }
-
-        private static void WriteToFile(string file, IReadOnlyList<Secret> secrets, string context, string secretsName)
-        {
-            if (File.Exists(file))
-            {
-                File.Delete(file);
-            }
-
-            using var fileStream = File.OpenWrite(file);
-            using var streamWriter = new StreamWriter(fileStream);
-
-            streamWriter.WriteLine("#######################################");
-            streamWriter.WriteLine($"# Context: {context}");
-            streamWriter.WriteLine($"# Secret: {secretsName}");
-            streamWriter.WriteLine("#######################################");
-
-            foreach (var secret in secrets)
-            {
-                streamWriter.WriteLine($"{secret.Name}={secret.Value}");
-            }
         }
     }
 }
