@@ -1,11 +1,11 @@
-﻿using Newtonsoft.Json;
-using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.Text;
-
-namespace Likvido.Kubesec
+﻿namespace Likvido.Kubesec
 {
+    using Newtonsoft.Json;
+    using System;
+    using System.Collections.Generic;
+    using System.Diagnostics;
+    using System.Text;
+
     public static class KubeCtl
     {
         public static IReadOnlyList<Secret> GetSecrets(string secretsName)
@@ -26,6 +26,33 @@ namespace Likvido.Kubesec
             }
 
             return secrets;
+        }
+
+        public static Dictionary<string, IReadOnlyList<Secret>> GetAllSecrets()
+        {
+            var allSecretsDictionary = new Dictionary<string, IReadOnlyList<Secret>>();
+            var result = ExecuteCommand($"get secrets -o json");
+            dynamic deserialized = JsonConvert.DeserializeObject(result);
+
+            foreach (var item in deserialized.items)
+            {
+                if (item.type != "Opaque")
+                {
+                    Console.WriteLine($"Skipping secret '{item.metadata.name}', because it is not Opaque type, but '{item.type}'");
+                    continue;
+                }
+
+                var secrets = new List<Secret>();
+
+                foreach (var secret in item.data.Children())
+                {
+                    secrets.Add(new Secret(secret.Name, Encoding.UTF8.GetString(Convert.FromBase64String(secret.Value.Value))));
+                }
+
+                allSecretsDictionary.Add((string)item.metadata.name, secrets);
+            }
+
+            return allSecretsDictionary;
         }
 
         public static bool ApplyFile(string file)
@@ -66,7 +93,7 @@ namespace Likvido.Kubesec
             kubectl.StartInfo.RedirectStandardError = true;
 
             kubectl.Start();
-            kubectl.WaitForExit();
+            kubectl.WaitForExit((int)TimeSpan.FromSeconds(10).TotalMilliseconds);
 
             return kubectl.StandardOutput.ReadToEnd()
                 + kubectl.StandardError.ReadToEnd();
