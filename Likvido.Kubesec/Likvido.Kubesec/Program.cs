@@ -23,7 +23,8 @@
             {
                 CreatePullCommand(),
                 CreatePushCommand(),
-                CreateBackupCommand()
+                CreateBackupCommand(),
+                CreateRestoreCommand()
             };
 
             return await rootCommand.InvokeAsync(args);
@@ -76,6 +77,23 @@
                 (string context) =>
                 {
                     return SetContextAndRunCommand(context, (c) => BackupCommand.Run(c));
+                });
+
+            return cmd;
+        }
+
+        private static Command CreateRestoreCommand()
+        {
+            var cmd = new Command("restore", "Pushes all secrets in a given folder")
+            {
+                new Argument<string>("folder", "The folder containing all the secret files to push"),
+                new Option<string>(new string[] { "--context", "-c" }, "The kubectl config context to use")
+            };
+
+            cmd.Handler = CommandHandler.Create(
+                (string folder, string context) =>
+                {
+                    return SetContextAndRunCommand(context, (c) => RestoreCommand.Run(folder, c));
                 });
 
             return cmd;
