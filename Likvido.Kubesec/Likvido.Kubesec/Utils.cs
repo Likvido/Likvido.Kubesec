@@ -1,5 +1,6 @@
 ﻿namespace Likvido.Kubesec
 {
+    using System;
     using System.Collections.Generic;
     using System.IO;
 
@@ -11,6 +12,8 @@
             {
                 File.Delete(file);
             }
+
+            Console.WriteLine($"Writing file '{file}'");
 
             using var fileStream = File.OpenWrite(file);
             using var streamWriter = new StreamWriter(fileStream);
