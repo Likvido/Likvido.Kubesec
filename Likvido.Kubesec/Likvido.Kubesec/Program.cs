@@ -22,7 +22,8 @@
             var rootCommand = new RootCommand("Kubernetes secret configuration helper")
             {
                 CreatePullCommand(),
-                CreatePushCommand()
+                CreatePushCommand(),
+                CreateBackupCommand()
             };
 
             return await rootCommand.InvokeAsync(args);
@@ -59,6 +60,22 @@
                 (string file, string context, string secret) =>
                 {
                     return SetContextAndRunCommand(context, (c) => PushCommand.Run(file, c, secret));
+                });
+
+            return cmd;
+        }
+
+        private static Command CreateBackupCommand()
+        {
+            var cmd = new Command("backup", "Pulls all secrets in the cluster")
+            {
+                new Option<string>(new string[] { "--context", "-c" }, "The kubectl config context to use")
+            };
+
+            cmd.Handler = CommandHandler.Create(
+                (string context) =>
+                {
+                    return SetContextAndRunCommand(context, (c) => BackupCommand.Run(c));
                 });
 
             return cmd;
