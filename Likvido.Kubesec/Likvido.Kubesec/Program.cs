@@ -42,7 +42,7 @@
             cmd.Handler = CommandHandler.Create(
                 (string output, string context, string secret) =>
                 {
-                    return SetContextAndRunCommand(context, (c) => PullCommand.Run(output, secret, c));
+                    return TryCommand(() => PullCommand.Run(output, secret, context));
                 });
 
             return cmd;
@@ -60,7 +60,7 @@
             cmd.Handler = CommandHandler.Create(
                 (string file, string context, string secret) =>
                 {
-                    return SetContextAndRunCommand(context, (c) => PushCommand.Run(file, c, secret));
+                    return TryCommand(() => PushCommand.Run(file, context, secret));
                 });
 
             return cmd;
@@ -76,7 +76,7 @@
             cmd.Handler = CommandHandler.Create(
                 (string context) =>
                 {
-                    return SetContextAndRunCommand(context, (c) => BackupCommand.Run(c));
+                    return TryCommand(() => BackupCommand.Run(context));
                 });
 
             return cmd;
@@ -93,38 +93,23 @@
             cmd.Handler = CommandHandler.Create(
                 (string folder, string context) =>
                 {
-                    return SetContextAndRunCommand(context, (c) => RestoreCommand.Run(folder, c));
+                    return TryCommand(() => RestoreCommand.Run(folder, context));
                 });
 
             return cmd;
         }
 
-        private static int SetContextAndRunCommand(string context, Func<string, int> command)
+        private static int TryCommand(Func<int> command)
         {
-            var previousContext = KubeCtl.GetCurrentContext();
-
-            if (string.IsNullOrWhiteSpace(context))
-            {
-                Console.WriteLine($"Using context: {previousContext}");
-                context = previousContext;
-            }
-            else if (previousContext != context && !KubeCtl.TrySetContext(context))
-            {
-                Console.WriteLine("The given context does not exist");
-
-                return 1;
-            }
-
             try
             {
-                return command(context);
+                return command();
             }
-            finally
+            catch (Exception exception)
             {
-                if (previousContext != context)
-                {
-                    KubeCtl.TrySetContext(previousContext);
-                }
+                Console.Error.WriteLine(exception.Message);
+
+                return 1;
             }
         }
     }

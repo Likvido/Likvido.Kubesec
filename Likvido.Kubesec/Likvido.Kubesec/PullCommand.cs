@@ -8,7 +8,8 @@
     {
         public static int Run(string file, string secretsName, string context)
         {
-            var secrets = KubeCtl.GetSecrets(secretsName);
+            var kubeCtl = new KubeCtl(context);
+            var secrets = kubeCtl.GetSecrets(secretsName);
 
             if (!secrets.Any())
             {

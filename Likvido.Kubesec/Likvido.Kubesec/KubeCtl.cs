@@ -1,25 +1,27 @@
 ﻿namespace Likvido.Kubesec
 {
+    using Likvido.Kubesec.Exceptions;
     using Newtonsoft.Json;
     using System;
     using System.Collections.Generic;
     using System.Diagnostics;
     using System.Text;
 
-    public static class KubeCtl
+    public class KubeCtl
     {
-        public static IReadOnlyList<Secret> GetSecrets(string secretsName)
+        private readonly string context;
+
+        public KubeCtl(string context)
         {
-            var secrets = new List<Secret>();
+            this.context = context;
+        }
+
+        public IReadOnlyList<Secret> GetSecrets(string secretsName)
+        {
             var result = ExecuteCommand($"get secret {secretsName} -o json");
-
-            if (result.ToLowerInvariant().StartsWith("error"))
-            {
-                return secrets;
-            }
-
             dynamic deserialized = JsonConvert.DeserializeObject(result);
 
+            var secrets = new List<Secret>();
             foreach (var secret in deserialized.data.Children())
             {
                 secrets.Add(new Secret(secret.Name, Encoding.UTF8.GetString(Convert.FromBase64String(secret.Value.Value))));
@@ -28,10 +30,11 @@
             return secrets;
         }
 
-        public static Dictionary<string, IReadOnlyList<Secret>> GetAllSecrets()
+        public Dictionary<string, IReadOnlyList<Secret>> GetAllSecrets()
         {
             var allSecretsDictionary = new Dictionary<string, IReadOnlyList<Secret>>();
             var result = ExecuteCommand($"get secrets -o json");
+
             dynamic deserialized = JsonConvert.DeserializeObject(result);
 
             foreach (var item in deserialized.items)
@@ -55,37 +58,16 @@
             return allSecretsDictionary;
         }
 
-        public static bool ApplyFile(string file)
+        public void ApplyFile(string file)
         {
-            var result = ExecuteCommand($"apply -f {file}");
-
-            if (result.ToLowerInvariant().StartsWith("error"))
-            {
-                Console.Error.WriteLine(result);
-
-                return false;
-            }
-
-            return true;
+            ExecuteCommand($"apply -f {file}");
         }
 
-        public static string GetCurrentContext()
-        {
-            return ExecuteCommand("config current-context").TrimEnd('\n');
-        }
-
-        public static bool TrySetContext(string context)
-        {
-            var result = ExecuteCommand($"config use-context {context}");
-
-            return !result.ToLowerInvariant().StartsWith("error");
-        }
-
-        private static string ExecuteCommand(string command)
+        private string ExecuteCommand(string command)
         {
             using var kubectl = new Process();
             kubectl.StartInfo.FileName = "kubectl";
-            kubectl.StartInfo.Arguments = command;
+            kubectl.StartInfo.Arguments = $"{command} --context={context}";
 
             kubectl.StartInfo.UseShellExecute = false;
             kubectl.StartInfo.CreateNoWindow = true;
@@ -95,8 +77,14 @@
             kubectl.Start();
             kubectl.WaitForExit((int)TimeSpan.FromSeconds(10).TotalMilliseconds);
 
-            return kubectl.StandardOutput.ReadToEnd()
-                + kubectl.StandardError.ReadToEnd();
+            var error = kubectl.StandardError.ReadToEnd();
+
+            if (!string.IsNullOrWhiteSpace(error))
+            {
+                throw new KubeCtlException(error);
+            }
+
+            return kubectl.StandardOutput.ReadToEnd();
         }
     }
 }

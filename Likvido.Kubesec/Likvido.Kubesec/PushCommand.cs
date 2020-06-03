@@ -1,5 +1,6 @@
 ﻿namespace Likvido.Kubesec
 {
+    using Likvido.Kubesec.Exceptions;
     using System;
     using System.Collections.Generic;
     using System.IO;
@@ -11,6 +12,8 @@
     {
         public static int Run(string file, string context, string secretsName)
         {
+            var kubeCtl = new KubeCtl(context);
+
             if (!File.Exists(file))
             {
                 Console.WriteLine($"This file does not exist: {file}");
@@ -55,7 +58,7 @@
                 }
             }
 
-            DisplayChanges(secretsName, secretsFile);
+            DisplayChanges(secretsName, secretsFile, kubeCtl);
 
             if (!PromptContinue("Are you sure you wish to continue?"))
             {
@@ -64,11 +67,9 @@
 
             var secretsTempFile = CreateSecretsTempFile(secretsName, secretsFile.Secrets);
 
-            if(KubeCtl.ApplyFile(secretsTempFile))
-            {
-                Console.WriteLine("All done ... great success");
-                File.Delete(secretsTempFile);
-            }
+            kubeCtl.ApplyFile(secretsTempFile);
+            Console.WriteLine("All done ... great success");
+            File.Delete(secretsTempFile);
 
             return 0;
         }
@@ -95,9 +96,17 @@
             return filePath;
         }
 
-        private static void DisplayChanges(string secretsName, SecretsFile secretsFile)
+        private static void DisplayChanges(string secretsName, SecretsFile secretsFile, KubeCtl kubeCtl)
         {
-            var currentKubernetesSecrets = KubeCtl.GetSecrets(secretsName);
+            IReadOnlyList<Secret> currentKubernetesSecrets;
+            try
+            {
+                currentKubernetesSecrets = kubeCtl.GetSecrets(secretsName);
+            }
+            catch (KubeCtlException)
+            {
+                currentKubernetesSecrets = new List<Secret>();
+            }
 
             Console.WriteLine("Changes:");
             foreach (var removedSecret in currentKubernetesSecrets.Where(x => !secretsFile.Secrets.Any(y => x.Name == y.Name)))

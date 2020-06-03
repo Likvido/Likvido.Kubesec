@@ -10,7 +10,8 @@
             var backupFolder = $"Kubesec_Backup_{context}_{DateTime.Now:yyyyMMddTHHmmss}";
             Directory.CreateDirectory(backupFolder);
 
-            var allSecrets = KubeCtl.GetAllSecrets();
+            var kubeCtl = new KubeCtl(context);
+            var allSecrets = kubeCtl.GetAllSecrets();
 
             foreach (var secret in allSecrets)
             {
