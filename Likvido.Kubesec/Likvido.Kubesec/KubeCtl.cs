@@ -67,7 +67,7 @@
         {
             using var kubectl = new Process();
             kubectl.StartInfo.FileName = "kubectl";
-            kubectl.StartInfo.Arguments = $"{command} --context={context}";
+            kubectl.StartInfo.Arguments = string.IsNullOrWhiteSpace(context) ? command : $"{command} --context={context}";
 
             kubectl.StartInfo.UseShellExecute = false;
             kubectl.StartInfo.CreateNoWindow = true;
