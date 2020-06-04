@@ -6,8 +6,8 @@
     <PackAsTool>true</PackAsTool>
     <ToolCommandName>kubesec</ToolCommandName>
     <PackageOutputPath>./nupkg</PackageOutputPath>
-    <Version>0.3.0</Version>
-    <PackageReleaseNotes>No longer switch the active context back and forth, but supply the context to each command for kubectl</PackageReleaseNotes>
+    <Version>0.4.0</Version>
+    <PackageReleaseNotes>The context is optional</PackageReleaseNotes>
   </PropertyGroup>
 
   <ItemGroup>
