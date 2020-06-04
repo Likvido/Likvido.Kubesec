@@ -19,9 +19,9 @@ This is the command to pull secrets:
 kubesec pull <secret-name> --context <kubectl-context-name> --output <output-file>
 ```
 
-This example will pull the secrets stored with the name `sync-creditors` in a cluster with the kubectl context name `staging-windows`, and then output them to a file called `secrets.env`:
+This example will pull the secrets stored with the name `sync-creditors` in a cluster with the kubectl context name `staging-win`, and then output them to a file called `secrets.env`:
 ```
-kubesec pull sync-creditors --context staging-windows --output secrets.env
+kubesec pull sync-creditors --context staging-win --output secrets.env
 ```
 
 If you do not specify `--context`, then it will use whatever context is currently active in kubectl
@@ -34,9 +34,9 @@ This is the command to push secrets:
 kubesec push <file> --context <kubectl-context-name> --secret <secret-name>
 ```
 
-This is an example command that will push the secrets stored in the file `secret.env` to the cluster with the kubectl context name `staging-windows` using the secret name `sync-creditors`:
+This is an example command that will push the secrets stored in the file `secret.env` to the cluster with the kubectl context name `staging-win` using the secret name `sync-creditors`:
 ```
-kubesec push secrets.env --context staging-windows --secret sync-creditors
+kubesec push secrets.env --context staging-win --secret sync-creditors
 ```
 
 If you do not specify `--context`, then it will use whatever context is currently active in kubectl
@@ -46,7 +46,7 @@ If you do not specify `--context`, then it will use whatever context is currentl
 When you pull secrets using kubesec and store them in a file, then it will include a file header looking something like this:
 ```
 #######################################
-# Context: staging-windows
+# Context: staging-win
 # Secret: sync-creditors
 #######################################
 ```
