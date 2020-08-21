@@ -6,6 +6,7 @@
     using System.Collections.Generic;
     using System.Diagnostics;
     using System.Text;
+    using System.Threading.Tasks;
 
     public class KubeCtl
     {
@@ -75,16 +76,24 @@
             kubectl.StartInfo.RedirectStandardError = true;
 
             kubectl.Start();
+
+            string output = null;
+            var outputReadingTask = Task.Run(() => output = kubectl.StandardOutput.ReadToEnd());
+
             kubectl.WaitForExit((int)TimeSpan.FromSeconds(10).TotalMilliseconds);
+            outputReadingTask.Wait((int)TimeSpan.FromSeconds(10).TotalMilliseconds);
 
-            var error = kubectl.StandardError.ReadToEnd();
-
-            if (!string.IsNullOrWhiteSpace(error))
+            if (kubectl.HasExited && kubectl.ExitCode != 0)
             {
-                throw new KubeCtlException(error);
+                var error = kubectl.StandardError.ReadToEnd();
+
+                if (!string.IsNullOrWhiteSpace(error))
+                {
+                    throw new KubeCtlException(error);
+                }
             }
 
-            return kubectl.StandardOutput.ReadToEnd();
+            return output;
         }
     }
 }
