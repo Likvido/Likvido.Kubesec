@@ -18,7 +18,7 @@
 
         public IReadOnlyList<Secret> GetSecrets(string secretsName)
         {
-            var result = ExecuteCommand($"get secret {secretsName} -o json");
+            var result = ExecuteCommand($"get secret {secretsName} -o json", 5);
             dynamic deserialized = JsonConvert.DeserializeObject(result);
 
             var secrets = new List<Secret>();
@@ -63,7 +63,7 @@
             ExecuteCommand($"apply -f {file}");
         }
 
-        private string ExecuteCommand(string command)
+        private string ExecuteCommand(string command, int secondsTimeout = 10)
         {
             using var kubectl = new Process();
             kubectl.StartInfo.FileName = "kubectl";
@@ -71,20 +71,35 @@
 
             kubectl.StartInfo.UseShellExecute = false;
             kubectl.StartInfo.CreateNoWindow = true;
+            kubectl.StartInfo.RedirectStandardInput = true;
             kubectl.StartInfo.RedirectStandardOutput = true;
             kubectl.StartInfo.RedirectStandardError = true;
 
             kubectl.Start();
-            kubectl.WaitForExit((int)TimeSpan.FromSeconds(10).TotalMilliseconds);
+            kubectl.WaitForExit((int)TimeSpan.FromSeconds(secondsTimeout).TotalMilliseconds);
 
-            var error = kubectl.StandardError.ReadToEnd();
-
-            if (!string.IsNullOrWhiteSpace(error))
+            var output = "";
+            if (!kubectl.HasExited)
             {
-                throw new KubeCtlException(error);
+                output = kubectl.StandardOutput.ReadToEnd();
+
+                //sometimes it doesn't stop at all< so we send crtl+c
+                kubectl.StandardInput.WriteLine("\x3");
+                kubectl.StandardInput.Flush();
+                kubectl.WaitForExit((int)TimeSpan.FromSeconds(10).TotalMilliseconds);
             }
 
-            return kubectl.StandardOutput.ReadToEnd();
+            if (kubectl.ExitCode != 0)
+            {
+                var error = kubectl.StandardError.ReadToEnd();
+
+                if (!string.IsNullOrWhiteSpace(error))
+                {
+                    throw new KubeCtlException(error);
+                }
+            }
+
+            return output;
         }
     }
 }
