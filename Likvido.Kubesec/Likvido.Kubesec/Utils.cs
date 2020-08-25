@@ -3,6 +3,7 @@
     using System;
     using System.Collections.Generic;
     using System.IO;
+    using System.Linq;
 
     public static class Utils
     {
@@ -23,10 +24,16 @@
             streamWriter.WriteLine($"# Secret: {secretsName}");
             streamWriter.WriteLine("#######################################");
 
-            foreach (var secret in secrets)
-            {
-                streamWriter.WriteLine($"{secret.Name}={secret.Value}");
-            }
+            var serializer = new YamlDotNet.Serialization.Serializer();
+
+            //hack due to https://github.com/aaubry/YamlDotNet/issues/361
+            // trying to keep "\n" in kubernetes but Environment.NewLine locally
+            var content = serializer
+                .Serialize(secrets.ToDictionary(s => s.Name, s => s.Value.Replace(Environment.NewLine, "\n")))
+                .Replace(Environment.NewLine, "\n")
+                .Replace("\n", Environment.NewLine);
+
+            streamWriter.WriteLine(content);
         }
     }
 }
