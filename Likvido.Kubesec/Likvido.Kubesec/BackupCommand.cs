@@ -15,7 +15,7 @@
 
             foreach (var secret in allSecrets)
             {
-                Utils.WriteToFile($"{backupFolder}/{secret.Key}.env", secret.Value, context, secret.Key);
+                Utils.WriteToFile($"{backupFolder}/{secret.Key}.yaml", secret.Value, context, secret.Key);
             }
 
             return 0;

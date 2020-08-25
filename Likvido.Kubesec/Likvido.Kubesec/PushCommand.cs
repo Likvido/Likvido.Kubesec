@@ -163,16 +163,11 @@
                 secretsFile.SecretsNameFromHeader = secretMatch.Groups[1].Value;
             }
 
-            foreach (var l in fileContents.Split(Environment.NewLine))
+            var deserializer = new YamlDotNet.Serialization.Deserializer();
+            foreach (var item in deserializer.Deserialize<Dictionary<string, string>>(fileContents))
             {
-                var line = l.Trim();
-                if (line.StartsWith("#") || string.IsNullOrWhiteSpace(line))
-                {
-                    continue;
-                }
-
-                var separatorPosition = line.IndexOf('=');
-                secretsFile.Secrets.Add(new Secret(line.Substring(0, separatorPosition), line.Substring(separatorPosition + 1)));
+                // trying to keep "\n" in kubernetes but Environment.NewLine locally
+                secretsFile.Secrets.Add(new Secret(item.Key, item.Value.Replace(Environment.NewLine, "\n")));
             }
 
             return secretsFile;
