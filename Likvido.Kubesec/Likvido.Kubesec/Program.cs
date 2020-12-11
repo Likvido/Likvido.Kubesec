@@ -36,13 +36,14 @@
             {
                 new Argument<string>("secret", "The name of the secret in kubernetes"),
                 new Option<string>(new string[] { "--context", "-c" }, "The kubectl config context to use"),
+                new Option<string>(new string[] { "--namespace", "-n" }, "The namespace of services in kubernetes"),
                 new Option<string>(new string[] { "--output", "-o" }, "The file to write to")
             };
 
             cmd.Handler = CommandHandler.Create(
-                (string output, string context, string secret) =>
+                (string output, string context, string secret, string @namespace) =>
                 {
-                    return TryCommand(() => PullCommand.Run(output, secret, context));
+                    return TryCommand(() => PullCommand.Run(output, secret, context, @namespace));
                 });
 
             return cmd;
@@ -54,13 +55,14 @@
             {
                 new Argument<string>("file", "The file to read from"),
                 new Option<string>(new string[] { "--context", "-c" }, "The kubectl config context to use"),
-                new Option<string>(new string[] { "--secret", "-s" }, "The name of the secret in kubernetes")
+                new Option<string>(new string[] { "--secret", "-s" }, "The name of the secret in kubernetes"),
+                new Option<string>(new string[] { "--namespace", "-n" }, "The namespace of services in kubernetes")
             };
 
             cmd.Handler = CommandHandler.Create(
-                (string file, string context, string secret) =>
+                (string file, string context, string secret, string @namespace) =>
                 {
-                    return TryCommand(() => PushCommand.Run(file, context, secret));
+                    return TryCommand(() => PushCommand.Run(file, context, secret, @namespace));
                 });
 
             return cmd;
@@ -70,13 +72,14 @@
         {
             var cmd = new Command("backup", "Pulls all secrets in the cluster")
             {
-                new Option<string>(new string[] { "--context", "-c" }, "The kubectl config context to use")
+                new Option<string>(new string[] { "--context", "-c" }, "The kubectl config context to use"),
+                new Option<string>(new string[] { "--namespace-contains", "-nc" }, "The namespace keyword of services in kubernetes")
             };
 
             cmd.Handler = CommandHandler.Create(
-                (string context) =>
+                (string context, string namespaceContains) =>
                 {
-                    return TryCommand(() => BackupCommand.Run(context));
+                    return TryCommand(() => BackupCommand.Run(context, namespaceContains));
                 });
 
             return cmd;

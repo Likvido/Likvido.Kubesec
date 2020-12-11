@@ -12,7 +12,7 @@ namespace Likvido.Kubesec
             foreach (var file in files)
             {
                 Console.WriteLine($"Processing '{file}'");
-                PushCommand.Run(file, context, null);
+                PushCommand.Run(file, context, null, null);
             }
 
             return 0;

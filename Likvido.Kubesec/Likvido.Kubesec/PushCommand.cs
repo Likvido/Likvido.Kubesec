@@ -10,7 +10,7 @@
 
     public static class PushCommand
     {
-        public static int Run(string file, string context, string secretsName)
+        public static int Run(string file, string context, string secretsName, string @namespace)
         {
             var kubeCtl = new KubeCtl(context);
 
@@ -58,14 +58,34 @@
                 }
             }
 
-            DisplayChanges(secretsName, secretsFile, kubeCtl);
+            if (string.IsNullOrEmpty(@namespace))
+            {
+                if (string.IsNullOrWhiteSpace(secretsFile.NamespaceFromHeader))
+                {
+                    Console.WriteLine($"Providing a namespace is required when the file does not contain it");
+
+                    return 1;
+                }
+
+                @namespace = secretsFile.NamespaceFromHeader;
+            }
+
+            var existingNamespaces = kubeCtl.GetExistingNamespaces();
+            if (!existingNamespaces.Any(a => a.Equals(@namespace)))
+            {
+                Console.WriteLine($"Error from server (NotFound): namespaces '{@namespace}' not found");
+                return 1;
+            }
+            Console.WriteLine($"Using namespace: {@namespace}");
+
+            DisplayChanges(secretsName, @namespace, secretsFile, kubeCtl);
 
             if (!PromptContinue("Are you sure you wish to continue?"))
             {
                 return 0;
             }
 
-            var secretsTempFile = CreateSecretsTempFile(secretsName, secretsFile.Secrets);
+            var secretsTempFile = CreateSecretsTempFile(secretsName, @namespace, secretsFile.Secrets);
 
             kubeCtl.ApplyFile(secretsTempFile);
             Console.WriteLine("All done ... great success");
@@ -74,7 +94,7 @@
             return 0;
         }
 
-        private static string CreateSecretsTempFile(string secretName, IReadOnlyList<Secret> secrets)
+        private static string CreateSecretsTempFile(string secretName, string @namespace, IReadOnlyList<Secret> secrets)
         {
             var contentBuilder = new StringBuilder();
 
@@ -82,6 +102,7 @@
             contentBuilder.AppendLine("kind: Secret");
             contentBuilder.AppendLine("metadata:");
             contentBuilder.AppendLine($"  name: {secretName}");
+            contentBuilder.AppendLine($"  namespace: {@namespace}");
             contentBuilder.AppendLine("type: Opaque");
             contentBuilder.AppendLine("data:");
 
@@ -96,12 +117,12 @@
             return filePath;
         }
 
-        private static void DisplayChanges(string secretsName, SecretsFile secretsFile, KubeCtl kubeCtl)
+        private static void DisplayChanges(string secretsName, string @namespace, SecretsFile secretsFile, KubeCtl kubeCtl)
         {
             IReadOnlyList<Secret> currentKubernetesSecrets;
             try
             {
-                currentKubernetesSecrets = kubeCtl.GetSecrets(secretsName);
+                currentKubernetesSecrets = kubeCtl.GetSecrets(secretsName, @namespace);
             }
             catch (KubeCtlException)
             {
@@ -152,6 +173,7 @@
 
             var contextMatch = Regex.Match(fileContents, "# Context: ([^\n\r]*)");
             var secretMatch = Regex.Match(fileContents, "# Secret: ([^\n\r]*)");
+            var namespaceMatch = Regex.Match(fileContents, "# Namespace: ([^\n\r]*)");
 
             if (contextMatch.Success)
             {
@@ -161,6 +183,11 @@
             if (secretMatch.Success)
             {
                 secretsFile.SecretsNameFromHeader = secretMatch.Groups[1].Value;
+            }
+
+            if (namespaceMatch.Success)
+            {
+                secretsFile.NamespaceFromHeader = namespaceMatch.Groups[1].Value;
             }
 
             var deserializer = new YamlDotNet.Serialization.Deserializer();
@@ -178,6 +205,7 @@
             public string ContextFromHeader { get; set; }
 
             public string SecretsNameFromHeader { get; set; }
+            public string NamespaceFromHeader { get; set; }
 
             public List<Secret> Secrets { get; set; } = new List<Secret>();
         }

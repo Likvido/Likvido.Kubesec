@@ -5,9 +5,10 @@
     using System;
     using System.Collections.Generic;
     using System.Diagnostics;
+    using System.Linq;
     using System.Text;
+    using System.Text.RegularExpressions;
     using System.Threading.Tasks;
-
     public class KubeCtl
     {
         private readonly string context;
@@ -17,9 +18,9 @@
             this.context = context;
         }
 
-        public IReadOnlyList<Secret> GetSecrets(string secretsName)
+        public IReadOnlyList<Secret> GetSecrets(string secretsName, string @namespace)
         {
-            var result = ExecuteCommand($"get secret {secretsName} -o json");
+            var result = ExecuteCommand($"get secret {secretsName} -n {@namespace} -o json");
             dynamic deserialized = JsonConvert.DeserializeObject(result);
 
             var secrets = new List<Secret>();
@@ -31,29 +32,40 @@
             return secrets;
         }
 
-        public Dictionary<string, IReadOnlyList<Secret>> GetAllSecrets()
+        public List<string> GetExistingNamespaces()
         {
-            var allSecretsDictionary = new Dictionary<string, IReadOnlyList<Secret>>();
-            var result = ExecuteCommand($"get secrets -o json");
+            var allNamespaces = ExecuteCommand($"get namespaces -o custom-columns=:metadata.name");
+            var existingNamespaces = allNamespaces.Split(new string[] { "\n" }, StringSplitOptions.None);
+            return existingNamespaces.Where(n => !string.IsNullOrEmpty(n)).ToList();
+        }
 
-            dynamic deserialized = JsonConvert.DeserializeObject(result);
+        public Dictionary<Tuple<string, string>, IReadOnlyList<Secret>> GetNamespacesWithSecrets(string namespaceKeyword)
+        {
+            var allSecretsDictionary = new Dictionary<Tuple<string, string>, IReadOnlyList<Secret>>();
+            var filteredNamespaces = GetExistingNamespaces().Where(n => !string.IsNullOrEmpty(namespaceKeyword) && n.Contains(namespaceKeyword));
 
-            foreach (var item in deserialized.items)
+            foreach (var @namespace in filteredNamespaces)
             {
-                if (item.type != "Opaque")
+                var result = ExecuteCommand($"get secrets -o json -n={@namespace}");
+                dynamic deserialized = JsonConvert.DeserializeObject(result);
+
+                foreach (var item in deserialized.items)
                 {
-                    Console.WriteLine($"Skipping secret '{item.metadata.name}', because it is not Opaque type, but '{item.type}'");
-                    continue;
+                    if (item.type != "Opaque")
+                    {
+                        Console.WriteLine($"Skipping secret '{item.metadata.name}', because it is not Opaque type, but '{item.type}'");
+                        continue;
+                    }
+
+                    var secrets = new List<Secret>();
+
+                    foreach (var secret in item.data.Children())
+                    {
+                        secrets.Add(new Secret(secret.Name, Encoding.UTF8.GetString(Convert.FromBase64String(secret.Value.Value))));
+                    }
+
+                    allSecretsDictionary.Add(new Tuple<string, string>(@namespace, (string)item.metadata.name), secrets);
                 }
-
-                var secrets = new List<Secret>();
-
-                foreach (var secret in item.data.Children())
-                {
-                    secrets.Add(new Secret(secret.Name, Encoding.UTF8.GetString(Convert.FromBase64String(secret.Value.Value))));
-                }
-
-                allSecretsDictionary.Add((string)item.metadata.name, secrets);
             }
 
             return allSecretsDictionary;

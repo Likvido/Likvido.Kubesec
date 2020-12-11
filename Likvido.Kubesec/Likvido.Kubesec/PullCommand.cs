@@ -1,15 +1,24 @@
 ﻿namespace Likvido.Kubesec
 {
+    using System;
     using System.Collections.Generic;
     using System.CommandLine.Rendering.Views;
     using System.Linq;
 
     public static class PullCommand
     {
-        public static int Run(string file, string secretsName, string context)
+        public static int Run(string file, string secretsName, string context, string @namespace)
         {
             var kubeCtl = new KubeCtl(context);
-            var secrets = kubeCtl.GetSecrets(secretsName);
+
+            var existingNamespaces = kubeCtl.GetExistingNamespaces();
+            if (!existingNamespaces.Any(a => a.Equals(@namespace)))
+            {
+                Console.WriteLine($"Error from server (NotFound): namespaces '{@namespace}' not found");
+                return 1;
+            }
+
+            var secrets = kubeCtl.GetSecrets(secretsName, @namespace);
 
             if (!secrets.Any())
             {
@@ -22,7 +31,7 @@
             }
             else
             {
-                Utils.WriteToFile(file, secrets, context, secretsName);
+                Utils.WriteToFile(file, secrets, context, secretsName, @namespace);
             }
 
             return 0;
