@@ -39,15 +39,34 @@
             return existingNamespaces.Where(n => !string.IsNullOrEmpty(n)).ToList();
         }
 
-        public Dictionary<(string Namespace, string Name), IReadOnlyList<Secret>> GetNamespacesWithSecrets(string namespaceContains)
+        public Dictionary<(string Namespace, string Name), IReadOnlyList<Secret>> GetNamespacesWithSecrets(string @namespace, string namespaceContains, string namespaceRegex)
         {
             var allSecretsDictionary = new Dictionary<(string, string), IReadOnlyList<Secret>>();
-            var regexPattern = new Regex(namespaceContains);
+            string pattern = null;
+
+            if (!string.IsNullOrEmpty(@namespace))
+            {
+                pattern = @namespace;
+            }
+            else if (!string.IsNullOrEmpty(namespaceContains))
+            {
+                pattern = namespaceContains;
+            }
+            else if (!string.IsNullOrEmpty(namespaceRegex))
+            {
+                pattern = namespaceRegex;
+            }
+            else
+            {
+                pattern = "default";
+            }
+
+            var regexPattern = new Regex(pattern);
             var filteredNamespaces = GetExistingNamespaces().Where(n => regexPattern.IsMatch(n));
 
-            foreach (var @namespace in filteredNamespaces)
+            foreach (var namespaceItem in filteredNamespaces)
             {
-                var result = ExecuteCommand($"get secrets -o json -n={@namespace}");
+                var result = ExecuteCommand($"get secrets -o json -n={namespaceItem}");
                 dynamic deserialized = JsonConvert.DeserializeObject(result);
 
                 foreach (var item in deserialized.items)
@@ -65,7 +84,7 @@
                         secrets.Add(new Secret(secret.Name, Encoding.UTF8.GetString(Convert.FromBase64String(secret.Value.Value))));
                     }
 
-                    allSecretsDictionary.Add((@namespace, (string)item.metadata.name), secrets);
+                    allSecretsDictionary.Add((namespaceItem, (string)item.metadata.name), secrets);
                 }
             }
 

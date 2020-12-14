@@ -73,13 +73,15 @@
             var cmd = new Command("backup", "Pulls all secrets in the cluster")
             {
                 new Option<string>(new string[] { "--context", "-c" }, "The kubectl config context to use"),
-                new Option<string>(new string[] { "--namespace-contains", "-nc" }, "The namespace keyword of services in kubernetes")
+                new Option<string>(new string[] { "--namespace", "-n" }, "The namespace of services in kubernetes"),
+                new Option<string>(new string[] { "--namespace-contains", "-nc" }, "The namespace keyword of services in kubernetes"),
+                new Option<string>(new string[] { "--namespace-regex", "-nrgx" }, "The namespace regex to search for services in kubernetes")
             };
 
             cmd.Handler = CommandHandler.Create(
-                (string context, string namespaceContains) =>
+                (string context, string @namespace, string namespaceContains, string namespaceRegex) =>
                 {
-                    return TryCommand(() => BackupCommand.Run(context, namespaceContains ?? "default"));
+                    return TryCommand(() => BackupCommand.Run(context, @namespace, namespaceContains, namespaceRegex));
                 });
 
             return cmd;

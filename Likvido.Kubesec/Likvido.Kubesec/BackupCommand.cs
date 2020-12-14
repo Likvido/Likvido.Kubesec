@@ -5,26 +5,26 @@
 
     public static class BackupCommand
     {
-        public static int Run(string context, string namespaceContains)
+        public static int Run(string context, string @namespace, string namespaceContains, string namespaceRegex)
         {
             var backupFolder = $"Kubesec_Backup_{context}_{DateTime.Now:yyyyMMddTHHmmss}";
             Directory.CreateDirectory(backupFolder);
 
             var kubeCtl = new KubeCtl(context);
-            var allSecrets = kubeCtl.GetNamespacesWithSecrets(namespaceContains);
+            var allSecrets = kubeCtl.GetNamespacesWithSecrets(@namespace, namespaceContains, namespaceRegex);
 
             foreach (var secret in allSecrets)
             {
-                var @namespace = secret.Key.Namespace;
+                var @namespaceItem = secret.Key.Namespace;
                 var secretsName = secret.Key.Name;
-                var namespaceSubDirectory = $"{backupFolder}/{@namespace}";
+                var namespaceSubDirectory = $"{backupFolder}/{@namespaceItem}";
                 //create subfolders for namespaces
                 if (!Directory.Exists($"{namespaceSubDirectory}"))
                 {
                     Directory.CreateDirectory($"{namespaceSubDirectory}");
                 }
 
-                Utils.WriteToFile($"{namespaceSubDirectory}/{secretsName}.yaml", secret.Value, context, secretsName, @namespace);
+                Utils.WriteToFile($"{namespaceSubDirectory}/{secretsName}.yaml", secret.Value, context, secretsName, @namespaceItem);
             }
 
             return 0;
