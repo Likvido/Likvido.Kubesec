@@ -79,7 +79,7 @@
             cmd.Handler = CommandHandler.Create(
                 (string context, string namespaceContains) =>
                 {
-                    return TryCommand(() => BackupCommand.Run(context, namespaceContains));
+                    return TryCommand(() => BackupCommand.Run(context, namespaceContains ?? "default"));
                 });
 
             return cmd;

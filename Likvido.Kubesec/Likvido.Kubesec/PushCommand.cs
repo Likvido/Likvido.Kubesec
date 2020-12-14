@@ -60,22 +60,24 @@
 
             if (string.IsNullOrEmpty(@namespace))
             {
-                if (string.IsNullOrWhiteSpace(secretsFile.NamespaceFromHeader))
+                @namespace = "default";
+                if (!string.IsNullOrWhiteSpace(secretsFile.NamespaceFromHeader))
                 {
-                    Console.WriteLine($"Providing a namespace is required when the file does not contain it");
-
+                    @namespace = secretsFile.NamespaceFromHeader;
+                    if (!kubeCtl.CheckIfNamespaceExists(@namespace))
+                    {
+                        return 1;
+                    }
+                }
+            }
+            else
+            {
+                if (!kubeCtl.CheckIfNamespaceExists(@namespace))
+                {
                     return 1;
                 }
-
-                @namespace = secretsFile.NamespaceFromHeader;
             }
 
-            var existingNamespaces = kubeCtl.GetExistingNamespaces();
-            if (!existingNamespaces.Any(a => a.Equals(@namespace)))
-            {
-                Console.WriteLine($"Error from server (NotFound): namespaces '{@namespace}' not found");
-                return 1;
-            }
             Console.WriteLine($"Using namespace: {@namespace}");
 
             DisplayChanges(secretsName, @namespace, secretsFile, kubeCtl);

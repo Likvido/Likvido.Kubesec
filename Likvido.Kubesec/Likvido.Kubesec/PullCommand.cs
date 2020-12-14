@@ -11,11 +11,17 @@
         {
             var kubeCtl = new KubeCtl(context);
 
-            var existingNamespaces = kubeCtl.GetExistingNamespaces();
-            if (!existingNamespaces.Any(a => a.Equals(@namespace)))
+
+            if (string.IsNullOrEmpty(@namespace))
             {
-                Console.WriteLine($"Error from server (NotFound): namespaces '{@namespace}' not found");
-                return 1;
+                @namespace = "default";
+            }
+            else
+            {
+                if (!kubeCtl.CheckIfNamespaceExists(@namespace))
+                {
+                    return 1;
+                }
             }
 
             var secrets = kubeCtl.GetSecrets(secretsName, @namespace);

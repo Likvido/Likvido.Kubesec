@@ -39,10 +39,11 @@
             return existingNamespaces.Where(n => !string.IsNullOrEmpty(n)).ToList();
         }
 
-        public Dictionary<Tuple<string, string>, IReadOnlyList<Secret>> GetNamespacesWithSecrets(string namespaceKeyword)
+        public Dictionary<(string Namespace, string Name), IReadOnlyList<Secret>> GetNamespacesWithSecrets(string namespaceContains)
         {
-            var allSecretsDictionary = new Dictionary<Tuple<string, string>, IReadOnlyList<Secret>>();
-            var filteredNamespaces = GetExistingNamespaces().Where(n => !string.IsNullOrEmpty(namespaceKeyword) && n.Contains(namespaceKeyword));
+            var allSecretsDictionary = new Dictionary<(string, string), IReadOnlyList<Secret>>();
+            var regexPattern = new Regex(namespaceContains);
+            var filteredNamespaces = GetExistingNamespaces().Where(n => regexPattern.IsMatch(n));
 
             foreach (var @namespace in filteredNamespaces)
             {
@@ -64,7 +65,7 @@
                         secrets.Add(new Secret(secret.Name, Encoding.UTF8.GetString(Convert.FromBase64String(secret.Value.Value))));
                     }
 
-                    allSecretsDictionary.Add(new Tuple<string, string>(@namespace, (string)item.metadata.name), secrets);
+                    allSecretsDictionary.Add((@namespace, (string)item.metadata.name), secrets);
                 }
             }
 
@@ -74,6 +75,18 @@
         public void ApplyFile(string file)
         {
             ExecuteCommand($"apply -f {file}");
+        }
+
+        public bool CheckIfNamespaceExists(string @namespace)
+        {
+            var existingNamespaces = GetExistingNamespaces();
+            if (!existingNamespaces.Any(a => a.Equals(@namespace)))
+            {
+                Console.WriteLine($"Error from server (NotFound): namespaces '{@namespace}' not found");
+                return false;
+            }
+
+            return true;
         }
 
         private string ExecuteCommand(string command)
