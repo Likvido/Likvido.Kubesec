@@ -39,31 +39,30 @@
             return existingNamespaces.Where(n => !string.IsNullOrEmpty(n)).ToList();
         }
 
-        public Dictionary<(string Namespace, string Name), IReadOnlyList<Secret>> GetNamespacesWithSecrets(string @namespace, string namespaceContains, string namespaceRegex)
+        public Dictionary<(string Namespace, string Name), IReadOnlyList<Secret>> GetNamespacesWithSecrets(string @namespace, string namespaceIncludes, string namespaceRegex)
         {
             var allSecretsDictionary = new Dictionary<(string, string), IReadOnlyList<Secret>>();
-            string pattern = null;
+            Func<string, bool> filter = null;
 
             if (!string.IsNullOrEmpty(@namespace))
             {
-                pattern = $"^{@namespace}$";
+                filter = f => f.Equals(@namespace);
             }
-            else if (!string.IsNullOrEmpty(namespaceContains))
+            else if (!string.IsNullOrEmpty(namespaceIncludes))
             {
-                pattern = namespaceContains;
+                filter = f => f.Contains(namespaceIncludes);
             }
             else if (!string.IsNullOrEmpty(namespaceRegex))
             {
-                pattern = namespaceRegex;
+                var regexPattern = new Regex(namespaceRegex);
+                filter = f => regexPattern.IsMatch(f);
             }
             else
             {
-                pattern = "default";
+                filter = f => f.Equals("default");
             }
 
-            var regexPattern = new Regex(pattern);
-            var filteredNamespaces = GetExistingNamespaces().Where(n => regexPattern.IsMatch(n));
-
+            var filteredNamespaces = GetExistingNamespaces().Where(filter);
             foreach (var namespaceItem in filteredNamespaces)
             {
                 var result = ExecuteCommand($"get secrets -o json -n={namespaceItem}");

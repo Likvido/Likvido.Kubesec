@@ -5,13 +5,13 @@
 
     public static class BackupCommand
     {
-        public static int Run(string context, string @namespace, string namespaceContains, string namespaceRegex)
+        public static int Run(string context, string @namespace, string namespaceIncludes, string namespaceRegex)
         {
             var backupFolder = $"Kubesec_Backup_{context}_{DateTime.Now:yyyyMMddTHHmmss}";
             Directory.CreateDirectory(backupFolder);
 
             var kubeCtl = new KubeCtl(context);
-            var allSecrets = kubeCtl.GetNamespacesWithSecrets(@namespace, namespaceContains, namespaceRegex);
+            var allSecrets = kubeCtl.GetNamespacesWithSecrets(@namespace, namespaceIncludes, namespaceRegex);
 
             foreach (var secret in allSecrets)
             {
