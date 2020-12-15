@@ -46,7 +46,7 @@
 
             if (!string.IsNullOrEmpty(@namespace))
             {
-                pattern = @namespace;
+                pattern = $"^{@namespace}$";
             }
             else if (!string.IsNullOrEmpty(namespaceContains))
             {
