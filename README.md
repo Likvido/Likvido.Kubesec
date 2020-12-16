@@ -85,7 +85,7 @@ kubesec backup --namespace likvido-api --context staging-win
 b) This command will backup secrets from the namespaces that include `likvido` keyword on their names and are part of a cluster with the kubectl context name `staging-win` 
 
 ```
-kubesec backup --namespace-includes likvido-api --context staging-win 
+kubesec backup --namespace-includes likvido --context staging-win 
 ```
 
 c) This command will backup secrets from the namespaces that contain numbers on their names and are part of a cluster with the kubectl context name `staging-win` 
