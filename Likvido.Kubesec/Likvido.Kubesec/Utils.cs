@@ -7,7 +7,7 @@
 
     public static class Utils
     {
-        public static void WriteToFile(string file, IReadOnlyList<Secret> secrets, string context, string secretsName)
+        public static void WriteToFile(string file, IReadOnlyList<Secret> secrets, string context, string secretsName, string @namespace)
         {
             if (File.Exists(file))
             {
@@ -22,6 +22,7 @@
             streamWriter.WriteLine("#######################################");
             streamWriter.WriteLine($"# Context: {context}");
             streamWriter.WriteLine($"# Secret: {secretsName}");
+            streamWriter.WriteLine($"# Namespace: {@namespace}");
             streamWriter.WriteLine("#######################################");
 
             var serializer = new YamlDotNet.Serialization.Serializer();
