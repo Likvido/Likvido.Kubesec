@@ -66,9 +66,9 @@ To backup all the secrets in your cluster you can use the following command.
 kubesec backup --context <kubectl-context-name>
 ```
 There are three more options that you can add to the command:
-1. `--namespace` - Will look for a specific namespace in a cluster
-2. `--namespace-include` - Will look for namespaces that includes the specified keyword
-3. `--namespace-regex` - Will look for namespaces that matches the specified regex
+1. `--namespace <kubectl-namespace>` - Will look for a specific namespace in a cluster
+2. `--namespace-include <keyword>` - Will look for namespaces that includes the specified keyword
+3. `--namespace-regex <regex>` - Will look for namespaces that matches the specified regex
 
 If you do not specify `--context`, then it will use whatever context is currently active in kubectl and also if you do not specify any of `namespace` options, then secrets will be backed up from `default` namespace.
 
