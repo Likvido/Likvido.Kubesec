@@ -9,6 +9,7 @@
     <Version>0.7.0</Version>
     <PackageReleaseNotes>Changes configuration files format to yaml</PackageReleaseNotes>
     <LangVersion>9</LangVersion>
+    <Nullable>enable</Nullable>
   </PropertyGroup>
 
   <ItemGroup>
