@@ -70,7 +70,9 @@ There are three more options that you can add to the command:
 2. `--namespace-include <keyword>` - Will look for namespaces that includes the specified keyword
 3. `--namespace-regex <regex>` - Will look for namespaces that matches the specified regex
 
-If you do not specify `--context`, then it will use whatever context is currently active in kubectl and also if you do not specify any of `namespace` options, then secrets will be backed up from `default` namespace.
+Only one of the above namespace options will take effect. The above order also defines their priority.
+
+If you do not specify `--context`, then it will use whatever context is currently active in kubectl.
 
 When using backup command a folder will be created in the directory you run the command from called `Kubesec_Backup_<context>_<datestamp>`. Inside the created folder one or more folders will be created with the name of `namespaces` that satisfy one of the conditions related to `namespace` options in command which will hold secret files defined in kubernetes (like if you were pulling each one manually).
 

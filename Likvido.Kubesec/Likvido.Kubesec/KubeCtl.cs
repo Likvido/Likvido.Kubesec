@@ -57,12 +57,14 @@
                 var regexPattern = new Regex(namespaceRegex);
                 filter = f => regexPattern.IsMatch(f);
             }
-            else
+
+            var filteredNamespaces = GetExistingNamespaces();
+
+            if (filter != null)
             {
-                filter = f => f.Equals("default");
+                filteredNamespaces = filteredNamespaces.Where(filter).ToList();
             }
 
-            var filteredNamespaces = GetExistingNamespaces().Where(filter);
             foreach (var namespaceItem in filteredNamespaces)
             {
                 var result = ExecuteCommand($"get secrets -o json -n={namespaceItem}");
