@@ -76,6 +76,12 @@
                         continue;
                     }
 
+                    if (item.data == null)
+                    {
+                        Console.WriteLine($"Skipping secret '{item.metadata.name}', because it does not have any data property");
+                        continue;
+                    }
+
                     var secrets = new List<Secret>();
 
                     foreach (var secret in item.data.Children())
