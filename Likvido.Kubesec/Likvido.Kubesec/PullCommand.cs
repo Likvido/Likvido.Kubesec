@@ -49,12 +49,15 @@
             table.AddColumn(secret => secret.Name, "Name");
             table.AddColumn(secret => secret.Value, "Value");
 
-            var screen = new ScreenView(Program.consoleRenderer, Program.invocationContext.Console)
+            if (Program.invocationContext != null)
             {
-                Child = table
-            };
+                var screen = new ScreenView(Program.consoleRenderer, Program.invocationContext.Console)
+                {
+                    Child = table
+                };
 
-            screen.Render();
+                screen.Render();
+            }
         }
     }
 }

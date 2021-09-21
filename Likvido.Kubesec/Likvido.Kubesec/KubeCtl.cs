@@ -20,8 +20,9 @@
 
         public IReadOnlyList<Secret> GetSecrets(string secretsName, string @namespace)
         {
-            var result = ExecuteCommand($"get secret {secretsName} -n {@namespace} -o json");
-            dynamic deserialized = JsonConvert.DeserializeObject(result);
+            var command = $"get secret {secretsName} -n {@namespace} -o json";
+            var result = ExecuteCommand(command);
+            dynamic deserialized = JsonConvert.DeserializeObject(result ?? throw new InvalidOperationException($"Command '{command}' gave no result!")) ?? throw new InvalidOperationException($"Command '{command}' gave no result!");
 
             var secrets = new List<Secret>();
             foreach (var secret in deserialized.data.Children())
@@ -32,17 +33,10 @@
             return secrets;
         }
 
-        public List<string> GetExistingNamespaces()
-        {
-            var allNamespaces = ExecuteCommand($"get namespaces -o custom-columns=:metadata.name");
-            var existingNamespaces = allNamespaces.Split(new string[] { "\n" }, StringSplitOptions.None);
-            return existingNamespaces.Where(n => !string.IsNullOrEmpty(n)).ToList();
-        }
-
         public Dictionary<(string Namespace, string Name), IReadOnlyList<Secret>> GetNamespacesWithSecrets(string @namespace, string namespaceIncludes, string namespaceRegex)
         {
             var allSecretsDictionary = new Dictionary<(string, string), IReadOnlyList<Secret>>();
-            Func<string, bool> filter = null;
+            Func<string, bool>? filter = null;
 
             if (!string.IsNullOrEmpty(@namespace))
             {
@@ -67,8 +61,9 @@
 
             foreach (var namespaceItem in filteredNamespaces)
             {
-                var result = ExecuteCommand($"get secrets -o json -n={namespaceItem}");
-                dynamic deserialized = JsonConvert.DeserializeObject(result);
+                var command = $"get secrets -o json -n={namespaceItem}";
+                var result = ExecuteCommand(command);
+                dynamic deserialized = JsonConvert.DeserializeObject(result ?? throw new InvalidOperationException($"Command '{command}' gave no result!")) ?? throw new InvalidOperationException($"Command '{command}' gave no result!");
 
                 foreach (var item in deserialized.items)
                 {
@@ -115,7 +110,14 @@
             return true;
         }
 
-        private string ExecuteCommand(string command)
+        private List<string> GetExistingNamespaces()
+        {
+            var allNamespaces = ExecuteCommand($"get namespaces -o custom-columns=:metadata.name");
+            var existingNamespaces = allNamespaces?.Split(new string[] { "\n" }, StringSplitOptions.None);
+            return existingNamespaces?.Where(n => !string.IsNullOrEmpty(n)).ToList() ?? new List<string>();
+        }
+
+        private string? ExecuteCommand(string command)
         {
             using var kubectl = new Process();
             kubectl.StartInfo.FileName = "kubectl";
@@ -128,7 +130,8 @@
 
             kubectl.Start();
 
-            string output = null;
+            string? output = null;
+            // ReSharper disable once AccessToDisposedClosure
             var outputReadingTask = Task.Run(() => output = kubectl.StandardOutput.ReadToEnd());
 
             kubectl.WaitForExit((int)TimeSpan.FromSeconds(10).TotalMilliseconds);

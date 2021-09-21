@@ -10,7 +10,7 @@
 
     public static class PushCommand
     {
-        public static int Run(string file, string context, string secretsName, string @namespace)
+        public static int Run(string file, string context, string? secretsName, string? @namespace)
         {
             var kubeCtl = new KubeCtl(context);
 
@@ -25,7 +25,7 @@
 
             if (string.IsNullOrWhiteSpace(secretsFile.ContextFromHeader))
             {
-                if (!PromptContinue("The file does not appear to be written by confocto (missing context header). Are you sure you wish to continue?"))
+                if (!PromptContinue("The file does not appear to be written by Kubesec (missing context header). Are you sure you wish to continue?"))
                 {
                     return 0;
                 }
@@ -204,12 +204,13 @@
 
         private class SecretsFile
         {
-            public string ContextFromHeader { get; set; }
+            public string? ContextFromHeader { get; set; }
 
-            public string SecretsNameFromHeader { get; set; }
-            public string NamespaceFromHeader { get; set; }
+            public string? SecretsNameFromHeader { get; set; }
 
-            public List<Secret> Secrets { get; set; } = new List<Secret>();
+            public string? NamespaceFromHeader { get; set; }
+
+            public List<Secret> Secrets { get; } = new();
         }
     }
 }

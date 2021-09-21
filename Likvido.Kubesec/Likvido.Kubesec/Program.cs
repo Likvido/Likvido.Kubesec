@@ -6,11 +6,13 @@
     using System.CommandLine.Rendering;
     using System.Threading.Tasks;
 
-    public class Program
+    public static class Program
     {
-        public static InvocationContext invocationContext;
-        public static ConsoleRenderer consoleRenderer;
+        public static InvocationContext? invocationContext;
+        public static ConsoleRenderer? consoleRenderer;
 
+        // ReSharper disable once UnusedMember.Global
+        // ReSharper disable once ParameterHidesMember
         public static async Task<int> Main(InvocationContext invocationContext, string[] args)
         {
             Program.invocationContext = invocationContext;
