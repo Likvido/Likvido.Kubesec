@@ -49,9 +49,9 @@
             table.AddColumn(secret => secret.Name, "Name");
             table.AddColumn(secret => secret.Value, "Value");
 
-            if (Program.invocationContext != null)
+            if (Program.InvocationContext != null)
             {
-                var screen = new ScreenView(Program.consoleRenderer, Program.invocationContext.Console)
+                var screen = new ScreenView(Program.ConsoleRenderer, Program.InvocationContext.Console)
                 {
                     Child = table
                 };
