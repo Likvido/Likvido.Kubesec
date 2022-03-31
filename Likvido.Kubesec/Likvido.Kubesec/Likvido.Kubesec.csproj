@@ -2,15 +2,16 @@
 
   <PropertyGroup>
     <OutputType>Exe</OutputType>
-    <TargetFramework>net5.0</TargetFramework>
+    <TargetFramework>net6.0</TargetFramework>
     <PackAsTool>true</PackAsTool>
     <ToolCommandName>kubesec</ToolCommandName>
     <PackageOutputPath>./nupkg</PackageOutputPath>
     <Version>0.8.0</Version>
     <PackageVersion>0.8.0</PackageVersion>
     <PackageReleaseNotes>Changes configuration files format to yaml</PackageReleaseNotes>
-    <LangVersion>9</LangVersion>
+    <LangVersion>10</LangVersion>
     <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
   </PropertyGroup>
 
   <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
