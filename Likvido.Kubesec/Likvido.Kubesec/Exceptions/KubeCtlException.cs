@@ -1,12 +1,9 @@
-﻿namespace Likvido.Kubesec.Exceptions
-{
-    using System;
+﻿namespace Likvido.Kubesec.Exceptions;
 
-    public class KubeCtlException : Exception
+public class KubeCtlException : Exception
+{
+    public KubeCtlException(string message)
+        : base(message)
     {
-        public KubeCtlException(string message)
-            : base(message)
-        {
-        }
     }
 }

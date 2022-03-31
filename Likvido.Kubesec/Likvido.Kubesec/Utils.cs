@@ -1,40 +1,34 @@
-﻿namespace Likvido.Kubesec
+﻿using YamlDotNet.Serialization;
+
+namespace Likvido.Kubesec;
+
+public static class Utils
 {
-    using System;
-    using System.Collections.Generic;
-    using System.IO;
-    using System.Linq;
-
-    public static class Utils
+    public static void WriteToFile(string file, IReadOnlyList<Secret> secrets, string context, string secretsName,
+        string @namespace)
     {
-        public static void WriteToFile(string file, IReadOnlyList<Secret> secrets, string context, string secretsName, string @namespace)
-        {
-            if (File.Exists(file))
-            {
-                File.Delete(file);
-            }
+        if (File.Exists(file)) File.Delete(file);
 
-            Console.WriteLine($"Writing file '{file}'");
+        Console.WriteLine($"Writing file '{file}'");
 
-            using var fileStream = File.OpenWrite(file);
-            using var streamWriter = new StreamWriter(fileStream);
+        using var fileStream = File.OpenWrite(file);
+        using var streamWriter = new StreamWriter(fileStream);
 
-            streamWriter.WriteLine("#######################################");
-            streamWriter.WriteLine($"# Context: {context}");
-            streamWriter.WriteLine($"# Secret: {secretsName}");
-            streamWriter.WriteLine($"# Namespace: {@namespace}");
-            streamWriter.WriteLine("#######################################");
+        streamWriter.WriteLine("#######################################");
+        streamWriter.WriteLine($"# Context: {context}");
+        streamWriter.WriteLine($"# Secret: {secretsName}");
+        streamWriter.WriteLine($"# Namespace: {@namespace}");
+        streamWriter.WriteLine("#######################################");
 
-            var serializer = new YamlDotNet.Serialization.Serializer();
+        var serializer = new Serializer();
 
-            //hack due to https://github.com/aaubry/YamlDotNet/issues/361
-            // trying to keep "\n" in kubernetes but Environment.NewLine locally
-            var content = serializer
-                .Serialize(secrets.ToDictionary(s => s.Name, s => s.Value.Replace(Environment.NewLine, "\n")))
-                .Replace(Environment.NewLine, "\n")
-                .Replace("\n", Environment.NewLine);
+        //hack due to https://github.com/aaubry/YamlDotNet/issues/361
+        // trying to keep "\n" in kubernetes but Environment.NewLine locally
+        var content = serializer
+            .Serialize(secrets.ToDictionary(s => s.Name, s => s.Value.Replace(Environment.NewLine, "\n")))
+            .Replace(Environment.NewLine, "\n")
+            .Replace("\n", Environment.NewLine);
 
-            streamWriter.WriteLine(content);
-        }
+        streamWriter.WriteLine(content);
     }
 }
