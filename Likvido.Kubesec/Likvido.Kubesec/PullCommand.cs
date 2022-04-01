@@ -12,12 +12,9 @@ public static class PullCommand
         {
             @namespace = "default";
         }
-        else
+        else if (!kubeCtl.CheckIfNamespaceExists(@namespace))
         {
-            if (!kubeCtl.CheckIfNamespaceExists(@namespace))
-            {
-                return 1;
-            }
+            return 1;
         }
 
         var secrets = kubeCtl.GetSecrets(secretsName, @namespace);
