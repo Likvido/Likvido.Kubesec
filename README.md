@@ -19,9 +19,9 @@ This is the command to pull secrets:
 kubesec pull <secret-name> --namespace <kubectl-namespace> --context <kubectl-context-name> --output <output-file>
 ```
 
-This example will pull the secrets stored with the name `sync-creditors` from a namespace called `likvido-api` in a cluster with the kubectl context name `staging-win`, and then output them to a file called `secrets.env`:
+This example will pull the secrets stored with the name `sync-creditors` from a namespace called `likvido-api` in a cluster with the kubectl context name `staging`, and then output them to a file called `secrets.env`:
 ```
-kubesec pull sync-creditors --namespace likvido-api --context staging-win --output secrets.env
+kubesec pull sync-creditors --namespace likvido-api --context staging --output secrets.env
 ```
 
 If you do not specify `--context`, then it will use whatever context is currently active in kubectl
@@ -35,9 +35,9 @@ This is the command to push secrets:
 kubesec push <file> --namespace <kubectl-namespace> --context <kubectl-context-name> --secret <secret-name>
 ```
 
-This is an example command that will push the secrets stored in the file `secret.env` to a namespace called `likvido-api` in a cluster with the kubectl context name `staging-win` using the secret name `sync-creditors`:
+This is an example command that will push the secrets stored in the file `secret.env` to a namespace called `likvido-api` in a cluster with the kubectl context name `staging` using the secret name `sync-creditors`:
 ```
-kubesec push secrets.env --namespace likvido-api --context staging-win --secret sync-creditors
+kubesec push secrets.env --namespace likvido-api --context staging --secret sync-creditors
 ```
 
 If you do not specify `--context`, then it will use whatever context is currently active in kubectl
@@ -78,22 +78,22 @@ When using backup command a folder will be created in the directory you run the 
 
 #### Examples
 
-a) This is an example command that will backup secrets from the namespace called `likvido-api` which is part of a cluster with the kubectl context name `staging-win` 
+a) This is an example command that will backup secrets from the namespace called `likvido-api` which is part of a cluster with the kubectl context name `staging` 
 
 ```
-kubesec backup --namespace likvido-api --context staging-win 
+kubesec backup --namespace likvido-api --context staging
 ```
 
-b) This command will backup secrets from the namespaces that include `likvido` keyword on their names and are part of a cluster with the kubectl context name `staging-win` 
+b) This command will backup secrets from the namespaces that include `likvido` keyword on their names and are part of a cluster with the kubectl context name `staging` 
 
 ```
-kubesec backup --namespace-includes likvido --context staging-win 
+kubesec backup --namespace-includes likvido --context staging
 ```
 
-c) This command will backup secrets from the namespaces that contain numbers on their names and are part of a cluster with the kubectl context name `staging-win` 
+c) This command will backup secrets from the namespaces that contain numbers on their names and are part of a cluster with the kubectl context name `staging` 
 
 ```
-kubesec backup --namespace-regex \d --context staging-win 
+kubesec backup --namespace-regex \d --context staging
 ```
 ## Restore
 
