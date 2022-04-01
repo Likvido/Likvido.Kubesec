@@ -1,4 +1,4 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
 
     <PropertyGroup>
         <OutputType>Exe</OutputType>
@@ -9,26 +9,17 @@
         <Version>0.8.0</Version>
         <PackageVersion>0.8.0</PackageVersion>
         <PackageReleaseNotes>Changes configuration files format to yaml</PackageReleaseNotes>
-        <LangVersion>10</LangVersion>
-        <Nullable>enable</Nullable>
         <ImplicitUsings>enable</ImplicitUsings>
-    </PropertyGroup>
-
-    <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
-        <NoWarn>1701;1702;1591</NoWarn>
-        <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
-    </PropertyGroup>
-
-    <PropertyGroup Condition=" '$(Configuration)' == 'Release' ">
+        <Nullable>enable</Nullable>
         <NoWarn>1701;1702;1591</NoWarn>
         <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
     </PropertyGroup>
 
     <ItemGroup>
-        <PackageReference Include="Newtonsoft.Json" Version="13.0.1"/>
-        <PackageReference Include="System.CommandLine" Version="2.0.0-beta3.22114.1"/>
-        <PackageReference Include="YamlDotNet" Version="11.2.1"/>
+        <PackageReference Include="Newtonsoft.Json" Version="13.0.1" />
         <PackageReference Include="Spectre.Console" Version="0.44.0" />
+        <PackageReference Include="System.CommandLine" Version="2.0.0-beta3.22114.1" />
+        <PackageReference Include="YamlDotNet" Version="11.2.1" />
     </ItemGroup>
 
 </Project>
