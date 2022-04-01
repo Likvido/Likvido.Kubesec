@@ -54,7 +54,7 @@ If you do not specify `--namespace`, then it will use `default` namespace
 When you pull secrets using kubesec and store them in a file, then it will include a file header looking something like this:
 ```
 #######################################
-# Context: staging-win
+# Context: staging
 # Secret: sync-creditors
 # Namespace: likvido-api
 #######################################
@@ -110,3 +110,11 @@ kubesec restore <folder> --context <kubectl-context-name>
 ```
 
 If you do not specify `--context`, then it will use whatever context is currently active in kubectl
+
+## Releasing a new version
+
+To release a new version to NuGet, run through these steps:
+
+1. Update the version number and release noted in the project file `Likvido.Kubesec/Likvido.Kubesec/Likvido.Kubesec.csproj`
+2. Run the command: `dotnet pack Likvido.Kubesec/Likvido.Kubesec/Likvido.Kubesec.csproj`
+3. Go to https://www.nuget.org/packages/manage/upload and upload the resulting nupkg file
