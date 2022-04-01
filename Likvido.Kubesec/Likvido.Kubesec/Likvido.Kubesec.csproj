@@ -6,9 +6,9 @@
         <PackAsTool>true</PackAsTool>
         <ToolCommandName>kubesec</ToolCommandName>
         <PackageOutputPath>./nupkg</PackageOutputPath>
-        <Version>0.8.0</Version>
-        <PackageVersion>0.8.0</PackageVersion>
-        <PackageReleaseNotes>Changes configuration files format to yaml</PackageReleaseNotes>
+        <Version>0.9.0</Version>
+        <PackageVersion>0.9.0</PackageVersion>
+        <PackageReleaseNotes>Add option to unwrap a secret key in the pull command</PackageReleaseNotes>
         <ImplicitUsings>enable</ImplicitUsings>
         <Nullable>enable</Nullable>
         <NoWarn>1701;1702;1591</NoWarn>
