@@ -16,7 +16,7 @@ https://www.nuget.org/packages/Likvido.Kubesec
 
 This is the command to pull secrets:
 ```
-kubesec pull <secret-name> --namespace <kubectl-namespace> --context <kubectl-context-name> --output <output-file>
+kubesec pull <secret-name> --namespace <kubectl-namespace> --context <kubectl-context-name> --unwrap-key <key-name> --output <output-file>
 ```
 
 This example will pull the secrets stored with the name `sync-creditors` from a namespace called `likvido-api` in a cluster with the kubectl context name `staging`, and then output them to a file called `secrets.env`:
@@ -27,6 +27,12 @@ kubesec pull sync-creditors --namespace likvido-api --context staging --output s
 If you do not specify `--context`, then it will use whatever context is currently active in kubectl
 If you do not specify `--namespace`, then it will use `default` namespace
 If you do not specify `--output`, then it will display the data inside the console in a table format
+If you do not specify `--unwrap-key` then it will fetch all keys and output them with both their key name and value
+
+This example will pull the secrets stored with the name `sync-creditors` from a namespace called `likvido-api` in a cluster with the kubectl context name `staging`, and then unwrap the key `app.json` and output the value of this key to a file called `appsettings.Development.json`:
+```
+kubesec pull sync-creditors --namespace likvido-api --context staging --unwrap-key app.json --output appsettings.Development.json
+```
 
 ## How to push secrets
 
