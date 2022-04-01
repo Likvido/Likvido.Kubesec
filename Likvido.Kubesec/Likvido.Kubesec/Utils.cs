@@ -6,7 +6,10 @@ public static class Utils
 {
     public static void WriteToFile(string file, IReadOnlyList<Secret> secrets, string secretsName, string? context = null, string? @namespace = null)
     {
-        if (File.Exists(file)) File.Delete(file);
+        if (File.Exists(file))
+        {
+            File.Delete(file);
+        }
 
         Console.WriteLine($"Writing file '{file}'");
 
@@ -29,5 +32,20 @@ public static class Utils
             .Replace("\n", Environment.NewLine);
 
         streamWriter.WriteLine(content);
+    }
+
+    public static void WriteUnwrappedSecretToFile(string file, Secret secret)
+    {
+        Console.WriteLine($"Writing the value of the key '{secret.Name}' to the file '{file}'");
+
+        if (File.Exists(file))
+        {
+            File.Delete(file);
+        }
+
+        using var fileStream = File.OpenWrite(file);
+        using var streamWriter = new StreamWriter(fileStream);
+
+        streamWriter.Write(secret.Value);
     }
 }

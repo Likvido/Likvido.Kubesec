@@ -18,20 +18,22 @@ static Command CreatePullCommand()
     var optionNamespace =
         new Option<string>(new[] { "--namespace", "-n" }, "The namespace of services in kubernetes");
     var optionOutput = new Option<string>(new[] { "--output", "-o" }, "The file to write to");
+    var optionUnwrapKey = new Option<string>(new[] { "--unwrap-key", "-u" }, "Unwrap a specific key (so we only output the value of this key)");
     var cmd = new Command("pull", "Pulls secrets from kubernetes to a local file")
     {
         argumentSecret,
         optionContext,
         optionNamespace,
-        optionOutput
+        optionOutput,
+        optionUnwrapKey
     };
 
     cmd.SetHandler(
-        (string secret, string? output, string? context, string? @namespace) =>
+        (string secret, string? output, string? context, string? @namespace, string? unwrapKeyName) =>
         {
-            return Task.FromResult(TryCommand(() => PullCommand.Run(secret, output, context, @namespace)));
+            return Task.FromResult(TryCommand(() => PullCommand.Run(secret, output, context, @namespace, unwrapKeyName)));
         },
-        argumentSecret, optionOutput, optionContext, optionNamespace);
+        argumentSecret, optionOutput, optionContext, optionNamespace, optionUnwrapKey);
 
     return cmd;
 }
