@@ -19,9 +19,9 @@ This is the command to pull secrets:
 kubesec pull <secret-name> --namespace <kubectl-namespace> --context <kubectl-context-name> --unwrap-key <key-name> --output <output-file>
 ```
 
-This example will pull the secrets stored with the name `sync-creditors` from a namespace called `likvido-api` in a cluster with the kubectl context name `staging`, and then output them to a file called `secrets.env`:
+This example will pull the secrets stored with the name `sync-creditors` from a namespace called `likvido-api` in a cluster with the kubectl context name `staging`, and then output them to a file called `secrets.yaml`:
 ```
-kubesec pull sync-creditors --namespace likvido-api --context staging --output secrets.env
+kubesec pull sync-creditors --namespace likvido-api --context staging --output secrets.yaml
 ```
 
 If you do not specify `--context`, then it will use whatever context is currently active in kubectl
@@ -41,9 +41,9 @@ This is the command to push secrets:
 kubesec push <file> --namespace <kubectl-namespace> --context <kubectl-context-name> --secret <secret-name>
 ```
 
-This is an example command that will push the secrets stored in the file `secret.env` to a namespace called `likvido-api` in a cluster with the kubectl context name `staging` using the secret name `sync-creditors`:
+This is an example command that will push the secrets stored in the file `secret.yaml` to a namespace called `likvido-api` in a cluster with the kubectl context name `staging` using the secret name `sync-creditors`:
 ```
-kubesec push secrets.env --namespace likvido-api --context staging --secret sync-creditors
+kubesec push secrets.yaml --namespace likvido-api --context staging --secret sync-creditors
 ```
 
 If you do not specify `--context`, then it will use whatever context is currently active in kubectl
