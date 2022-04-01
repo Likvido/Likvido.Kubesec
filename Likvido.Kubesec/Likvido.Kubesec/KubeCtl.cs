@@ -114,6 +114,22 @@ public class KubeCtl
         return true;
     }
 
+    public string? RunPortForward(string service, string @namespace, string port)
+    {
+        var servicePort = string.IsNullOrWhiteSpace(port) ? "80" : port;
+        var output = ExecuteCommand($"port-forward service/{service} -n {@namespace} :{servicePort}", false, 2);
+
+        if (string.IsNullOrWhiteSpace(output))
+        {
+            return null;
+        }
+
+        var portForwardOutputRegex = new Regex("^Forwarding from 127\\.0\\.0\\.1:(?<localPort>\\d{2,5})");
+        var match = portForwardOutputRegex.Match(output);
+
+        return !match.Success ? null : match.Groups["localPort"].Value;
+    }
+
     private List<string> GetExistingNamespaces()
     {
         var allNamespaces = ExecuteCommand("get namespaces -o custom-columns=:metadata.name");
@@ -121,9 +137,9 @@ public class KubeCtl
         return existingNamespaces?.Where(n => !string.IsNullOrEmpty(n)).ToList() ?? new List<string>();
     }
 
-    private string? ExecuteCommand(string command)
+    private string? ExecuteCommand(string command, bool dispose = true, int waitingTimeSeconds = 10)
     {
-        using var kubectl = new Process();
+        var kubectl = new Process();
         kubectl.StartInfo.FileName = "kubectl";
         kubectl.StartInfo.Arguments = string.IsNullOrWhiteSpace(context) ? command : $"{command} --context={context}";
 
@@ -134,18 +150,23 @@ public class KubeCtl
 
         kubectl.Start();
 
-        string? output = null;
-        // ReSharper disable once AccessToDisposedClosure
-        var outputReadingTask = Task.Run(() => output = kubectl.StandardOutput.ReadToEnd());
-
-        kubectl.WaitForExit((int)TimeSpan.FromSeconds(10).TotalMilliseconds);
-        outputReadingTask.Wait((int)TimeSpan.FromSeconds(10).TotalMilliseconds);
+        var output = kubectl.WaitForExit((int)TimeSpan.FromSeconds(waitingTimeSeconds).TotalMilliseconds)
+            ? kubectl.StandardOutput.ReadToEnd()
+            : kubectl.StandardOutput.ReadLine();
 
         if (kubectl.HasExited && kubectl.ExitCode != 0)
         {
             var error = kubectl.StandardError.ReadToEnd();
 
-            if (!string.IsNullOrWhiteSpace(error)) throw new KubeCtlException(error);
+            if (!string.IsNullOrWhiteSpace(error))
+            {
+                throw new KubeCtlException(error);
+            }
+        }
+
+        if (dispose)
+        {
+            kubectl.Dispose();
         }
 
         return output;

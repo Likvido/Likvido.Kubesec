@@ -19,21 +19,29 @@ static Command CreatePullCommand()
         new Option<string>(new[] { "--namespace", "-n" }, "The namespace of services in kubernetes");
     var optionOutput = new Option<string>(new[] { "--output", "-o" }, "The file to write to");
     var optionUnwrapKey = new Option<string>(new[] { "--unwrap-key", "-u" }, "Unwrap a specific key (so we only output the value of this key)");
+    var optionPortForward = new Option<bool>(new[] { "--port-forward", "-p" }, "Will run port-forwards and replace any Kubernetes service URLs in the config (requires the unwrap-key option as well)");
     var cmd = new Command("pull", "Pulls secrets from kubernetes to a local file")
     {
         argumentSecret,
         optionContext,
         optionNamespace,
         optionOutput,
-        optionUnwrapKey
+        optionUnwrapKey,
+        optionPortForward
     };
 
     cmd.SetHandler(
-        (string secret, string? output, string? context, string? @namespace, string? unwrapKeyName) =>
+        (string secret, string? output, string? context, string? @namespace, string? unwrapKeyName, bool configurePortForwarding) =>
         {
-            return Task.FromResult(TryCommand(() => PullCommand.Run(secret, output, context, @namespace, unwrapKeyName)));
+            if (configurePortForwarding && string.IsNullOrWhiteSpace(unwrapKeyName))
+            {
+                Console.WriteLine("When using the port-forward flag, you also have to specify the unwrap-key option");
+                return Task.FromResult(0);
+            }
+
+            return TryCommandAsync(() => PullCommand.Run(secret, configurePortForwarding, output, context, @namespace, unwrapKeyName));
         },
-        argumentSecret, optionOutput, optionContext, optionNamespace, optionUnwrapKey);
+        argumentSecret, optionOutput, optionContext, optionNamespace, optionUnwrapKey, optionPortForward);
 
     return cmd;
 }
@@ -116,6 +124,20 @@ static int TryCommand(Func<int> command)
     try
     {
         return command();
+    }
+    catch (Exception exception)
+    {
+        Console.Error.WriteLine(exception.Message);
+
+        return 1;
+    }
+}
+
+static async Task<int> TryCommandAsync(Func<Task<int>> command)
+{
+    try
+    {
+        return await command();
     }
     catch (Exception exception)
     {

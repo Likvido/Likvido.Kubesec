@@ -10,5 +10,5 @@ public class Secret
 
     public string Name { get; }
 
-    public string Value { get; }
+    public string Value { get; set; }
 }
