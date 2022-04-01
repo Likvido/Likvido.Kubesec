@@ -2,7 +2,7 @@
 
 public static class RestoreCommand
 {
-    public static int Run(string folder, string context)
+    public static int Run(string folder, string? context)
     {
         var files = Directory.GetFiles(folder);
 

@@ -4,8 +4,7 @@ namespace Likvido.Kubesec;
 
 public static class Utils
 {
-    public static void WriteToFile(string file, IReadOnlyList<Secret> secrets, string context, string secretsName,
-        string @namespace)
+    public static void WriteToFile(string file, IReadOnlyList<Secret> secrets, string secretsName, string? context = null, string? @namespace = null)
     {
         if (File.Exists(file)) File.Delete(file);
 

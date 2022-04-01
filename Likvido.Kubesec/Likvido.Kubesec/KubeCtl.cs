@@ -8,9 +8,9 @@ namespace Likvido.Kubesec;
 
 public class KubeCtl
 {
-    private readonly string context;
+    private readonly string? context;
 
-    public KubeCtl(string context)
+    public KubeCtl(string? context)
     {
         this.context = context;
     }
@@ -33,7 +33,7 @@ public class KubeCtl
     }
 
     public Dictionary<(string Namespace, string Name), IReadOnlyList<Secret>> GetNamespacesWithSecrets(
-        string @namespace, string namespaceIncludes, string namespaceRegex)
+        string? @namespace = null, string? namespaceIncludes = null, string? namespaceRegex = null)
     {
         var allSecretsDictionary = new Dictionary<(string, string), IReadOnlyList<Secret>>();
         Func<string, bool>? filter = null;
@@ -54,7 +54,10 @@ public class KubeCtl
 
         var filteredNamespaces = GetExistingNamespaces();
 
-        if (filter != null) filteredNamespaces = filteredNamespaces.Where(filter).ToList();
+        if (filter != null)
+        {
+            filteredNamespaces = filteredNamespaces.Where(filter).ToList();
+        }
 
         foreach (var namespaceItem in filteredNamespaces)
         {
@@ -70,23 +73,22 @@ public class KubeCtl
             {
                 if (item.type != "Opaque")
                 {
-                    Console.WriteLine(
-                        $"Skipping secret '{item.metadata.name}', because it is not Opaque type, but '{item.type}'");
+                    Console.WriteLine($"Skipping secret '{item.metadata.name}', because it is not Opaque type, but '{item.type}'");
                     continue;
                 }
 
                 if (item.data == null)
                 {
-                    Console.WriteLine(
-                        $"Skipping secret '{item.metadata.name}', because it does not have any data property");
+                    Console.WriteLine($"Skipping secret '{item.metadata.name}', because it does not have any data property");
                     continue;
                 }
 
                 var secrets = new List<Secret>();
 
                 foreach (var secret in item.data.Children())
-                    secrets.Add(new Secret(secret.Name,
-                        Encoding.UTF8.GetString(Convert.FromBase64String(secret.Value.Value))));
+                {
+                    secrets.Add(new Secret(secret.Name, Encoding.UTF8.GetString(Convert.FromBase64String(secret.Value.Value))));
+                }
 
                 allSecretsDictionary.Add((namespaceItem, (string)item.metadata.name), secrets);
             }

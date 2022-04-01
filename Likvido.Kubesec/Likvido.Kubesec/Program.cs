@@ -27,7 +27,7 @@ static Command CreatePullCommand()
     };
 
     cmd.SetHandler(
-        (string secret, string output, string context, string @namespace) =>
+        (string secret, string? output, string? context, string? @namespace) =>
         {
             return Task.FromResult(TryCommand(() => PullCommand.Run(secret, output, context, @namespace)));
         },
@@ -52,7 +52,7 @@ static Command CreatePushCommand()
     };
 
     cmd.SetHandler(
-        (string file, string context, string secret, string @namespace) =>
+        (string file, string? context, string? secret, string? @namespace) =>
         {
             return Task.FromResult(TryCommand(() => PushCommand.Run(file, context, secret, @namespace)));
         },
@@ -79,7 +79,7 @@ static Command CreateBackupCommand()
     };
 
     cmd.SetHandler(
-        (string context, string @namespace, string namespaceIncludes, string namespaceRegex) =>
+        (string? context, string? @namespace, string? namespaceIncludes, string? namespaceRegex) =>
         {
             return Task.FromResult(TryCommand(() =>
                 BackupCommand.Run(context, @namespace, namespaceIncludes, namespaceRegex)));
@@ -100,7 +100,7 @@ static Command CreateRestoreCommand()
     };
 
     cmd.SetHandler(
-        (string folder, string context) =>
+        (string folder, string? context) =>
         {
             return Task.FromResult(TryCommand(() => RestoreCommand.Run(folder, context)));
         },

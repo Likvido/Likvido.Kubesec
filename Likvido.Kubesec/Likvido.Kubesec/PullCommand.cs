@@ -4,7 +4,7 @@ namespace Likvido.Kubesec;
 
 public static class PullCommand
 {
-    public static int Run(string secretsName, string file, string context, string @namespace)
+    public static int Run(string secretsName, string? file = null, string? context = null, string? @namespace = null)
     {
         var kubeCtl = new KubeCtl(context);
 
@@ -14,17 +14,27 @@ public static class PullCommand
         }
         else
         {
-            if (!kubeCtl.CheckIfNamespaceExists(@namespace)) return 1;
+            if (!kubeCtl.CheckIfNamespaceExists(@namespace))
+            {
+                return 1;
+            }
         }
 
         var secrets = kubeCtl.GetSecrets(secretsName, @namespace);
 
-        if (!secrets.Any()) return 0;
+        if (!secrets.Any())
+        {
+            return 0;
+        }
 
         if (string.IsNullOrWhiteSpace(file))
+        {
             RenderToConsole(secrets);
+        }
         else
-            Utils.WriteToFile(file, secrets, context, secretsName, @namespace);
+        {
+            Utils.WriteToFile(file, secrets, secretsName, context, @namespace);
+        }
 
         return 0;
     }

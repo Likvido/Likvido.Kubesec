@@ -7,7 +7,7 @@ namespace Likvido.Kubesec;
 
 public static class PushCommand
 {
-    public static int Run(string file, string context, string? secretsName, string? @namespace)
+    public static int Run(string file, string? context = null, string? secretsName = null, string? @namespace = null)
     {
         var kubeCtl = new KubeCtl(context);
 
