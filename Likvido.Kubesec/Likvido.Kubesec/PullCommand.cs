@@ -4,10 +4,9 @@ namespace Likvido.Kubesec;
 
 public static class PullCommand
 {
-    public static int Run(string file, string secretsName, string context, string @namespace)
+    public static int Run(string secretsName, string file, string context, string @namespace)
     {
         var kubeCtl = new KubeCtl(context);
-
 
         if (string.IsNullOrEmpty(@namespace))
         {

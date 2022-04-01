@@ -29,7 +29,7 @@ static Command CreatePullCommand()
     cmd.SetHandler(
         (string secret, string output, string context, string @namespace) =>
         {
-            return Task.FromResult(TryCommand(() => PullCommand.Run(output, secret, context, @namespace)));
+            return Task.FromResult(TryCommand(() => PullCommand.Run(secret, output, context, @namespace)));
         },
         argumentSecret, optionOutput, optionContext, optionNamespace);
 
