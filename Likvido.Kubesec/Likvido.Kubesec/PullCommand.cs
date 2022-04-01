@@ -1,4 +1,4 @@
-﻿using System.CommandLine.Rendering.Views;
+﻿using Spectre.Console;
 
 namespace Likvido.Kubesec;
 
@@ -32,18 +32,15 @@ public static class PullCommand
 
     private static void RenderToConsole(IReadOnlyList<Secret> secrets)
     {
-        var table = new TableView<Secret> { Items = secrets };
-        table.AddColumn(secret => secret.Name, "Name");
-        table.AddColumn(secret => secret.Value, "Value");
+        var table = new Table();
+        table.AddColumn("Name");
+        table.AddColumn("Value");
 
-        if (Program.InvocationContext != null)
+        foreach (var secret in secrets)
         {
-            var screen = new ScreenView(Program.ConsoleRenderer, Program.InvocationContext.Console)
-            {
-                Child = table
-            };
-
-            screen.Render();
+            table.AddRow(secret.Name, secret.Value);
         }
+
+        AnsiConsole.Write(table);
     }
 }
