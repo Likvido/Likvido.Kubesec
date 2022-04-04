@@ -62,7 +62,7 @@ public class KubeCtl
         foreach (var namespaceItem in filteredNamespaces)
         {
             var command = $"get secrets -o json -n={namespaceItem}";
-            var result = ExecuteCommand(command);
+            var result = ExecuteCommand(command, waitingTimeSeconds: 5);
             dynamic deserialized =
                 JsonConvert.DeserializeObject(result ??
                                               throw new InvalidOperationException(
@@ -142,15 +142,15 @@ public class KubeCtl
         var kubectl = new Process();
         kubectl.StartInfo.FileName = "kubectl";
         kubectl.StartInfo.Arguments = string.IsNullOrWhiteSpace(context) ? command : $"{command} --context={context}";
-
         kubectl.StartInfo.UseShellExecute = false;
         kubectl.StartInfo.CreateNoWindow = true;
         kubectl.StartInfo.RedirectStandardOutput = true;
         kubectl.StartInfo.RedirectStandardError = true;
-
         kubectl.Start();
 
-        var output = kubectl.WaitForExit((int)TimeSpan.FromSeconds(waitingTimeSeconds).TotalMilliseconds)
+        kubectl.WaitForExit((int)TimeSpan.FromSeconds(waitingTimeSeconds).TotalMilliseconds);
+
+        var output = dispose
             ? kubectl.StandardOutput.ReadToEnd()
             : kubectl.StandardOutput.ReadLine();
 
@@ -166,6 +166,8 @@ public class KubeCtl
 
         if (dispose)
         {
+            kubectl.Kill(true);
+            kubectl.WaitForExit();
             kubectl.Dispose();
         }
 
