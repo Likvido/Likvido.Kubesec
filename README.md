@@ -16,7 +16,7 @@ https://www.nuget.org/packages/Likvido.Kubesec
 
 This is the command to pull secrets:
 ```
-kubesec pull <secret-name> --namespace <kubectl-namespace> --context <kubectl-context-name> --unwrap-key <key-name> --port-forward --output <output-file>
+kubesec pull <secret-name> --namespace <kubectl-namespace> --context <kubectl-context-name> --unwrap-key <key-name> --port-forward --output <output-file> --remove-json-field <field-to-remove>
 ```
 
 This example will pull the secrets stored with the name `sync-creditors` from a namespace called `likvido-api` in a cluster with the kubectl context name `staging`, and then output them to a file called `secrets.yaml`:
@@ -28,7 +28,8 @@ If you do not specify `--context`, then it will use whatever context is currentl
 If you do not specify `--namespace`, then it will use `default` namespace\
 If you do not specify `--output`, then it will display the data inside the console in a table format\
 If you do not specify `--unwrap-key` then it will fetch all keys and output them with both their key name and value\
-If you do not specify `--port-forward` then it won't do any port forwarding
+If you do not specify `--port-forward` then it won't do any port forwarding\
+If you do not specify `--remove-json-field` then no fields will be removed (duh!). This option can be specified multiple times, in case you have multiple fields you want to remove, see the example further down this readme.
 
 ### Unwrap key
 
