@@ -1,12 +1,19 @@
 ﻿using System.Text.RegularExpressions;
+using Newtonsoft.Json.Linq;
 using Spectre.Console;
 
 namespace Likvido.Kubesec;
 
 public static class PullCommand
 {
-    public static async Task<int> Run(string secretsName, bool configurePortForwarding, string? file = null, string? context = null,
-        string? @namespace = null, string? unwrapKeyName = null)
+    public static async Task<int> Run(
+        string secretsName,
+        bool configurePortForwarding,
+        string? file = null,
+        string? context = null,
+        string? @namespace = null,
+        string? unwrapKeyName = null,
+        List<string>? jsonFieldsToDelete = null)
     {
         var portForwardingStarted = false;
         var kubeCtl = new KubeCtl(context);
@@ -36,6 +43,11 @@ public static class PullCommand
             {
                 Console.WriteLine($"The key '{unwrapKeyName}' was not found");
                 return 0;
+            }
+
+            if (jsonFieldsToDelete != null)
+            {
+                RemoveJsonFields(secret, jsonFieldsToDelete);
             }
 
             if (configurePortForwarding)
@@ -75,6 +87,39 @@ public static class PullCommand
         }
 
         return 0;
+    }
+
+    private static void RemoveJsonFields(Secret secret, List<string> jsonFieldsToDelete)
+    {
+        var secretValueJson = JObject.Parse(secret.Value);
+
+        foreach (var jsonFieldExpression in jsonFieldsToDelete)
+        {
+            var jsonFieldExpressionParts = jsonFieldExpression.Split('.');
+            var currentField = (JToken)secretValueJson;
+
+            foreach (var jsonFieldExpressionPart in jsonFieldExpressionParts)
+            {
+                if (currentField == null)
+                {
+                    break;
+                }
+
+                currentField = currentField[jsonFieldExpressionPart];
+            }
+
+            if (currentField == null)
+            {
+                Console.WriteLine($"Didn't find the JSON field {jsonFieldExpression}, so ignoring that");
+            }
+            else
+            {
+                Console.WriteLine($"Removing {jsonFieldExpression}");
+                currentField.Parent?.Remove();
+            }
+        }
+
+        secret.Value = secretValueJson.ToString();
     }
 
     private static async Task<bool> SetUpPortForwardingAndMakeConfigReplacements(KubeCtl kubeCtl, Secret secret)
