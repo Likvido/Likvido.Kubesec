@@ -44,6 +44,43 @@ This example will pull the secrets stored with the name `sync-creditors` from a 
 kubesec pull sync-creditors --namespace likvido-api --context staging --unwrap-key app.json --port-forward --output appsettings.Development.json
 ```
 
+### Remove JSON field
+
+In case your secret value is a JSON object, and you would like to remove specific fields from the object before you write the file to the output, then you can do this with the `--remove-json-field` option. This example will pull the secrets stored with the name `sync-creditors` from a namespace called `likvido-api` in a cluster with the kubectl context name `staging`, unwrap the key `app.json`, remove the JSON fields `Events.Created.Name` & `ApplicationInsights` and output the resulting value to a file called `appsettings.Development.json`:
+```
+kubesec pull sync-creditors --namespace likvido-api --context staging --unwrap-key app.json --output appsettings.Development.json --remove-json-field Events.Created.Name --remove-json-field ApplicationInsights
+```
+
+So, to be clear, if the value of the `app.json` secret field in the secret looks like this:
+
+```json
+{
+  "FieldA": "ValueA",
+  "ApplicationInsights": {
+    "InstrumentationKey": "blabla"
+  },
+  "Events": {
+    "Created": {
+      "Type": "something",
+      "Name": "The created event"
+    }
+  }
+}
+```
+
+The resulting output (which would be written to the `appsettings.Development.json` file in this case), would look like this:
+
+```json
+{
+  "FieldA": "ValueA",
+  "Events": {
+    "Created": {
+      "Type": "something"
+    }
+  }
+}
+```
+
 ## How to push secrets
 
 This is the command to push secrets:
