@@ -24,13 +24,17 @@ public static class PushCommand
         {
             if (!PromptContinue(
                     "The file does not appear to be written by Kubesec (missing context header). Are you sure you wish to continue?"))
+            {
                 return 0;
+            }
         }
         else if (context != secretsFile.ContextFromHeader)
         {
             if (!PromptContinue(
                     $"The given context '{context}' does not match the context in the file '{secretsFile.ContextFromHeader}'. Are you sure you wish to continue?"))
+            {
                 return 0;
+            }
         }
 
         if (string.IsNullOrWhiteSpace(secretsName))
@@ -49,7 +53,9 @@ public static class PushCommand
         {
             if (!PromptContinue(
                     $"The given secret name '{secretsName}' does not match the secret name in the file '{secretsFile.SecretsNameFromHeader}'. Are you sure you wish to continue?"))
+            {
                 return 0;
+            }
         }
 
         if (string.IsNullOrEmpty(@namespace))
@@ -58,19 +64,33 @@ public static class PushCommand
             if (!string.IsNullOrWhiteSpace(secretsFile.NamespaceFromHeader))
             {
                 @namespace = secretsFile.NamespaceFromHeader;
-                if (!kubeCtl.CheckIfNamespaceExists(@namespace)) return 1;
+                if (!kubeCtl.CheckIfNamespaceExists(@namespace))
+                {
+                    return 1;
+                }
             }
         }
         else
         {
-            if (!kubeCtl.CheckIfNamespaceExists(@namespace)) return 1;
+            if (!kubeCtl.CheckIfNamespaceExists(@namespace))
+            {
+                return 1;
+            }
         }
 
         Console.WriteLine($"Using namespace: {@namespace}");
 
-        DisplayChanges(secretsName, @namespace, secretsFile, kubeCtl);
+        if (!DisplayChanges(secretsName, @namespace, secretsFile, kubeCtl))
+        {
+            Console.WriteLine("No changes detected ... skipping");
 
-        if (!PromptContinue("Are you sure you wish to continue?")) return 0;
+            return 0;
+        }
+
+        if (!PromptContinue("Are you sure you wish to continue?"))
+        {
+            return 0;
+        }
 
         var secretsTempFile = CreateSecretsTempFile(secretsName, @namespace, secretsFile.Secrets);
 
@@ -94,8 +114,9 @@ public static class PushCommand
         contentBuilder.AppendLine("data:");
 
         foreach (var secret in secrets)
-            contentBuilder.AppendLine(
-                $"  {secret.Name}: {Convert.ToBase64String(Encoding.UTF8.GetBytes(secret.Value))}");
+        {
+            contentBuilder.AppendLine($"  {secret.Name}: {Convert.ToBase64String(Encoding.UTF8.GetBytes(secret.Value))}");
+        }
 
         var filePath = $".secrets-upload-{DateTime.Now:yyyyMMddTHHmmss}.yaml";
         File.WriteAllText(filePath, contentBuilder.ToString());
@@ -103,7 +124,7 @@ public static class PushCommand
         return filePath;
     }
 
-    private static void DisplayChanges(string secretsName, string @namespace, SecretsFile secretsFile, KubeCtl kubeCtl)
+    private static bool DisplayChanges(string secretsName, string @namespace, SecretsFile secretsFile, KubeCtl kubeCtl)
     {
         IReadOnlyList<Secret> currentKubernetesSecrets;
         try
@@ -115,22 +136,30 @@ public static class PushCommand
             currentKubernetesSecrets = new List<Secret>();
         }
 
+        var changesDetected = false;
         Console.WriteLine("Changes:");
-        foreach (var removedSecret in currentKubernetesSecrets.Where(x =>
-                     !secretsFile.Secrets.Any(y => x.Name == y.Name))) Console.WriteLine($"- {removedSecret.Name}");
+        foreach (var removedSecret in currentKubernetesSecrets.Where(x => secretsFile.Secrets.All(y => x.Name != y.Name)))
+        {
+            Console.WriteLine($"- {removedSecret.Name}");
+            changesDetected = true;
+        }
 
-        foreach (var addedSecret in
-                 secretsFile.Secrets.Where(x => !currentKubernetesSecrets.Any(y => x.Name == y.Name)))
+        foreach (var addedSecret in secretsFile.Secrets.Where(x => currentKubernetesSecrets.All(y => x.Name != y.Name)))
+        {
             Console.WriteLine($"+ {addedSecret.Name}");
+            changesDetected = true;
+        }
 
-        foreach (var modifiedSecret in secretsFile.Secrets.Where(x =>
-                     currentKubernetesSecrets.Any(y => x.Name == y.Name && x.Value != y.Value)))
+        foreach (var modifiedSecret in secretsFile.Secrets.Where(x => currentKubernetesSecrets.Any(y => x.Name == y.Name && x.Value != y.Value)))
         {
             var currentKubernetesSecret = currentKubernetesSecrets.First(x => x.Name == modifiedSecret.Name);
             Console.WriteLine(modifiedSecret.Name);
             Console.WriteLine($"FROM: {currentKubernetesSecret.Value}");
             Console.WriteLine($"TO  : {modifiedSecret.Value}");
+            changesDetected = true;
         }
+
+        return changesDetected;
     }
 
     private static bool PromptContinue(string question)
@@ -140,7 +169,10 @@ public static class PushCommand
         {
             Console.Write($"{question} [y/n] ");
             response = Console.ReadKey(false).Key;
-            if (response != ConsoleKey.Enter) Console.WriteLine();
+            if (response != ConsoleKey.Enter)
+            {
+                Console.WriteLine();
+            }
         } while (response != ConsoleKey.Y && response != ConsoleKey.N);
 
         return response == ConsoleKey.Y;
@@ -155,16 +187,27 @@ public static class PushCommand
         var secretMatch = Regex.Match(fileContents, "# Secret: ([^\n\r]*)");
         var namespaceMatch = Regex.Match(fileContents, "# Namespace: ([^\n\r]*)");
 
-        if (contextMatch.Success) secretsFile.ContextFromHeader = contextMatch.Groups[1].Value;
+        if (contextMatch.Success)
+        {
+            secretsFile.ContextFromHeader = contextMatch.Groups[1].Value;
+        }
 
-        if (secretMatch.Success) secretsFile.SecretsNameFromHeader = secretMatch.Groups[1].Value;
+        if (secretMatch.Success)
+        {
+            secretsFile.SecretsNameFromHeader = secretMatch.Groups[1].Value;
+        }
 
-        if (namespaceMatch.Success) secretsFile.NamespaceFromHeader = namespaceMatch.Groups[1].Value;
+        if (namespaceMatch.Success)
+        {
+            secretsFile.NamespaceFromHeader = namespaceMatch.Groups[1].Value;
+        }
 
         var deserializer = new Deserializer();
         foreach (var item in deserializer.Deserialize<Dictionary<string, string>>(fileContents))
+        {
             // trying to keep "\n" in kubernetes but Environment.NewLine locally
             secretsFile.Secrets.Add(new Secret(item.Key, item.Value.Replace(Environment.NewLine, "\n")));
+        }
 
         return secretsFile;
     }
