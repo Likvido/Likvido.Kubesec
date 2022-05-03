@@ -111,18 +111,20 @@ static Command CreateRestoreCommand()
 {
     var argumentFolder = new Argument<string>("folder", "The folder containing all the secret files to push");
     var optionContext = new Option<string>(new[] { "--context", "-c" }, "The kubectl config context to use");
+    var optionRecursive = new Option<bool>(new[] { "--recursive", "-r" }, "Will recursively push secrets");
     var cmd = new Command("restore", "Pushes all secrets in a given folder")
     {
         argumentFolder,
-        optionContext
+        optionContext,
+        optionRecursive
     };
 
     cmd.SetHandler(
-        (string folder, string? context) =>
+        (string folder, string? context, bool recursive) =>
         {
-            return Task.FromResult(TryCommand(() => RestoreCommand.Run(folder, context)));
+            return Task.FromResult(TryCommand(() => RestoreCommand.Run(folder, context, recursive)));
         },
-        argumentFolder, optionContext);
+        argumentFolder, optionContext, optionRecursive);
 
     return cmd;
 }
