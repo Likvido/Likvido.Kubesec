@@ -154,10 +154,11 @@ kubesec backup --namespace-regex \d --context staging
 To restore the secrets you have created with the backup command, you can run the following command. It will loop through each file in the provided directory and push them in turn
 
 ```
-kubesec restore <folder> --context <kubectl-context-name>
+kubesec restore <folder> --context <kubectl-context-name> --recursive
 ```
 
-If you do not specify `--context`, then it will use whatever context is currently active in kubectl
+If you do not specify `--context`, then it will use whatever context is currently active in kubectl\
+If you do not specify `--recursive`, then it will only restore the files in the folder you specified
 
 ## Releasing a new version
 
