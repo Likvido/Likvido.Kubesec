@@ -2,33 +2,33 @@
 
 public static class RestoreCommand
 {
-    public static int Run(string folder, string? context, bool recursive)
+    public static int Run(string folder, string? context, bool recursive, bool skipPrompts = false)
     {
-        RestoreFiles(folder, context);
+        RestoreFiles(folder, context, skipPrompts);
 
         if (recursive)
         {
-            RecursiveRestore(folder, context);
+            RecursiveRestore(folder, context, skipPrompts);
         }
 
         return 0;
     }
 
-    private static void RecursiveRestore(string folder, string? context)
+    private static void RecursiveRestore(string folder, string? context, bool skipPrompts)
     {
         foreach (var directory in Directory.EnumerateDirectories(folder))
         {
-            RestoreFiles(directory, context);
-            RecursiveRestore(directory, context);
+            RestoreFiles(directory, context, skipPrompts);
+            RecursiveRestore(directory, context, skipPrompts);
         }
     }
 
-    private static void RestoreFiles(string folder, string? context)
+    private static void RestoreFiles(string folder, string? context, bool skipPrompts)
     {
         foreach (var file in Directory.EnumerateFiles(folder))
         {
             Console.WriteLine($"Processing '{file}'");
-            PushCommand.Run(file, context, null, null);
+            PushCommand.Run(file, context, skipPrompts: skipPrompts);
         }
     }
 }

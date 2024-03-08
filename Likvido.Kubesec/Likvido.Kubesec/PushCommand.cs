@@ -7,7 +7,7 @@ namespace Likvido.Kubesec;
 
 public static class PushCommand
 {
-    public static int Run(string file, string? context = null, string? secretsName = null, string? @namespace = null)
+    public static int Run(string file, string? context = null, string? secretsName = null, string? @namespace = null, bool skipPrompts = false)
     {
         var kubeCtl = new KubeCtl(context);
 
@@ -22,7 +22,7 @@ public static class PushCommand
 
         if (string.IsNullOrWhiteSpace(secretsFile.ContextFromHeader))
         {
-            if (!PromptContinue(
+            if (!skipPrompts && !PromptContinue(
                     "The file does not appear to be written by Kubesec (missing context header). Are you sure you wish to continue?"))
             {
                 return 0;
@@ -30,7 +30,7 @@ public static class PushCommand
         }
         else if (context != secretsFile.ContextFromHeader)
         {
-            if (!PromptContinue(
+            if (!skipPrompts && !PromptContinue(
                     $"The given context '{context}' does not match the context in the file '{secretsFile.ContextFromHeader}'. Are you sure you wish to continue?"))
             {
                 return 0;
@@ -51,7 +51,7 @@ public static class PushCommand
         }
         else if (secretsName != secretsFile.SecretsNameFromHeader)
         {
-            if (!PromptContinue(
+            if (!skipPrompts && !PromptContinue(
                     $"The given secret name '{secretsName}' does not match the secret name in the file '{secretsFile.SecretsNameFromHeader}'. Are you sure you wish to continue?"))
             {
                 return 0;
@@ -87,7 +87,7 @@ public static class PushCommand
             return 0;
         }
 
-        if (!PromptContinue("Are you sure you wish to continue?"))
+        if (!skipPrompts && !PromptContinue("Are you sure you wish to continue?"))
         {
             return 0;
         }
