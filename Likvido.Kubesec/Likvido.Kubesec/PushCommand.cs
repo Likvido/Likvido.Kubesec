@@ -7,7 +7,7 @@ namespace Likvido.Kubesec;
 
 public static class PushCommand
 {
-    public static int Run(string file, string? context = null, string? secretsName = null, string? @namespace = null, bool skipPrompts = false)
+    public static int Run(string file, string? context = null, string? secretsName = null, string? @namespace = null, bool skipPrompts = false, bool autoCreateMissingNamespace = false)
     {
         var kubeCtl = new KubeCtl(context);
 
@@ -64,15 +64,17 @@ public static class PushCommand
             if (!string.IsNullOrWhiteSpace(secretsFile.NamespaceFromHeader))
             {
                 @namespace = secretsFile.NamespaceFromHeader;
-                if (!kubeCtl.CheckIfNamespaceExists(@namespace))
-                {
-                    return 1;
-                }
             }
         }
-        else
+
+        if (!kubeCtl.CheckIfNamespaceExists(@namespace))
         {
-            if (!kubeCtl.CheckIfNamespaceExists(@namespace))
+            if (autoCreateMissingNamespace)
+            {
+                Console.WriteLine($"Creating namespace '{@namespace}' ...");
+                kubeCtl.CreateNamespace(@namespace);
+            }
+            else
             {
                 return 1;
             }

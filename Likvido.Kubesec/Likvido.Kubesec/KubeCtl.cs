@@ -114,6 +114,11 @@ public class KubeCtl
         return true;
     }
 
+    public void CreateNamespace(string @namespace)
+    {
+        ExecuteCommand($"create namespace {@namespace}");
+    }
+
     public string? RunPortForward(string service, string @namespace, string port)
     {
         var servicePort = string.IsNullOrWhiteSpace(port) ? "80" : port;
