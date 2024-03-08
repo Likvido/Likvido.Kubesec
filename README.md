@@ -86,7 +86,7 @@ The resulting output (which would be written to the `appsettings.Development.jso
 
 This is the command to push secrets:
 ```
-kubesec push <file> --namespace <kubectl-namespace> --context <kubectl-context-name> --secret <secret-name>
+kubesec push <file> --namespace <kubectl-namespace> --context <kubectl-context-name> --secret <secret-name> --skip-prompts --auto-create-missing-namespace
 ```
 
 This is an example command that will push the secrets stored in the file `secret.yaml` to a namespace called `likvido-api` in a cluster with the kubectl context name `staging` using the secret name `sync-creditors`:
@@ -94,8 +94,10 @@ This is an example command that will push the secrets stored in the file `secret
 kubesec push secrets.yaml --namespace likvido-api --context staging --secret sync-creditors
 ```
 
-If you do not specify `--context`, then it will use whatever context is currently active in kubectl
-If you do not specify `--namespace`, then it will use `default` namespace
+If you do not specify `--context`, then it will use whatever context is currently active in kubectl\
+If you do not specify `--namespace`, then it will use `default` namespace\
+If you do not specify `--skip-prompts`, then it will ask you for confirmation before pushing the secrets\
+If you do not specify `--auto-create-missing-namespace`, then it will not create the namespace if it does not exist
 
 ## File header
 
@@ -154,11 +156,13 @@ kubesec backup --namespace-regex \d --context staging
 To restore the secrets you have created with the backup command, you can run the following command. It will loop through each file in the provided directory and push them in turn
 
 ```
-kubesec restore <folder> --context <kubectl-context-name> --recursive
+kubesec restore <folder> --context <kubectl-context-name> --recursive --skip-prompts --auto-create-missing-namespaces
 ```
 
 If you do not specify `--context`, then it will use whatever context is currently active in kubectl\
-If you do not specify `--recursive`, then it will only restore the files in the folder you specified
+If you do not specify `--recursive`, then it will only restore the files in the folder you specified\
+If you do not specify `--skip-prompts`, then it will ask you for confirmation before pushing the secrets\
+If you do not specify `--auto-create-missing-namespaces`, then it will not create the namespaces if they do not exist
 
 ## Releasing a new version
 
