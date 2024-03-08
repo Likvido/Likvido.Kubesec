@@ -77,7 +77,7 @@ static Command CreatePushCommand()
         {
             return Task.FromResult(TryCommand(() => PushCommand.Run(file, context, secret, @namespace, skipPrompts, autoCreateMissingNamespace)));
         },
-        argumentFile, optionContext, optionSecret, optionNamespace);
+        argumentFile, optionContext, optionSecret, optionNamespace, optionSkipPrompts, optionAutoCreateMissingNamespace);
 
     return cmd;
 }
@@ -131,7 +131,7 @@ static Command CreateRestoreCommand()
         {
             return Task.FromResult(TryCommand(() => RestoreCommand.Run(folder, context, recursive, skipPrompts, autoCreateMissingNamespaces)));
         },
-        argumentFolder, optionContext, optionRecursive);
+        argumentFolder, optionContext, optionRecursive, optionSkipPrompts, optionAutoCreateMissingNamespaces);
 
     return cmd;
 }
