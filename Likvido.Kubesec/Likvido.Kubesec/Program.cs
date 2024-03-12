@@ -91,21 +91,24 @@ static Command CreateBackupCommand()
         "The namespace keyword of services in kubernetes");
     var optionNamespaceRegex = new Option<string>(new[] { "--namespace-regex", "-rgx" },
         "The namespace regex to search for services in kubernetes");
+    var optionExcludedNamespaces = new Option<string[]>(new[] { "--excluded-namespace", "-e" },
+        "A list of namespaces that should not be included in the backup");
     var cmd = new Command("backup", "Pulls all secrets in the cluster")
     {
         optionContext,
         optionNamespace,
         optionNamespaceIncludes,
-        optionNamespaceRegex
+        optionNamespaceRegex,
+        optionExcludedNamespaces
     };
 
     cmd.SetHandler(
-        (string? context, string? @namespace, string? namespaceIncludes, string? namespaceRegex) =>
+        (string? context, string? @namespace, string? namespaceIncludes, string? namespaceRegex, string[]? excludedNamespaces) =>
         {
             return Task.FromResult(TryCommand(() =>
-                BackupCommand.Run(context, @namespace, namespaceIncludes, namespaceRegex)));
+                BackupCommand.Run(context, @namespace, namespaceIncludes, namespaceRegex, excludedNamespaces)));
         },
-        optionContext, optionNamespace, optionNamespaceIncludes, optionNamespaceRegex);
+        optionContext, optionNamespace, optionNamespaceIncludes, optionNamespaceRegex, optionExcludedNamespaces);
 
     return cmd;
 }

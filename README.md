@@ -125,6 +125,7 @@ There are three more options that you can add to the command:
 1. `--namespace <kubectl-namespace>` - Will look for a specific namespace in a cluster
 2. `--namespace-include <keyword>` - Will look for namespaces that includes the specified keyword
 3. `--namespace-regex <regex>` - Will look for namespaces that matches the specified regex
+4. `--excluded-namespaces` - Will exclude the specified namespaces from the backup
 
 Only one of the above namespace options will take effect. The above order also defines their priority.
 
@@ -150,6 +151,12 @@ c) This command will backup secrets from the namespaces that contain numbers on 
 
 ```
 kubesec backup --namespace-regex \d --context staging
+```
+
+d) This command will backup secrets from all namespaces except `kube-system` and `prometheus` with the kubectl context name `staging` 
+
+```
+kubesec backup --excluded-namespace kube-system --excluded-namespace prometheus --context staging
 ```
 ## Restore
 

@@ -33,7 +33,8 @@ public class KubeCtl
     }
 
     public Dictionary<(string Namespace, string Name), IReadOnlyList<Secret>> GetNamespacesWithSecrets(
-        string? @namespace = null, string? namespaceIncludes = null, string? namespaceRegex = null)
+        string? @namespace = null, string? namespaceIncludes = null, string? namespaceRegex = null,
+        string[]? excludedNamespaces = null)
     {
         var allSecretsDictionary = new Dictionary<(string, string), IReadOnlyList<Secret>>();
         Func<string, bool>? filter = null;
@@ -50,6 +51,10 @@ public class KubeCtl
         {
             var regexPattern = new Regex(namespaceRegex);
             filter = f => regexPattern.IsMatch(f);
+        }
+        else if (excludedNamespaces != null)
+        {
+            filter = f => !excludedNamespaces.Contains(f);
         }
 
         var filteredNamespaces = GetExistingNamespaces();

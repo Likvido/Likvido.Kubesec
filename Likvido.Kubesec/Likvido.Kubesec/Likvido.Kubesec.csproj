@@ -6,9 +6,9 @@
         <PackAsTool>true</PackAsTool>
         <ToolCommandName>kubesec</ToolCommandName>
         <PackageOutputPath>./nupkg</PackageOutputPath>
-        <Version>1.0.1</Version>
-        <PackageVersion>1.0.1</PackageVersion>
-        <PackageReleaseNotes>When pushing a secret with no changes, just skip it</PackageReleaseNotes>
+        <Version>1.0.2</Version>
+        <PackageVersion>1.0.2</PackageVersion>
+        <PackageReleaseNotes>Add --exclude-namespace to the backup command</PackageReleaseNotes>
         <ImplicitUsings>enable</ImplicitUsings>
         <Nullable>enable</Nullable>
         <NoWarn>1701;1702;1591</NoWarn>
