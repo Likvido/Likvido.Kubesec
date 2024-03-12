@@ -59,22 +59,25 @@ static Command CreatePushCommand()
     var argumentFile = new Argument<string>("file", "The file to read from");
     var optionContext = new Option<string>(new[] { "--context", "-c" }, "The kubectl config context to use");
     var optionSecret = new Option<string>(new[] { "--secret", "-s" }, "The name of the secret in kubernetes");
-    var optionNamespace =
-        new Option<string>(new[] { "--namespace", "-n" }, "The namespace of services in kubernetes");
+    var optionNamespace = new Option<string>(new[] { "--namespace", "-n" }, "The namespace of services in kubernetes");
+    var optionSkipPrompts = new Option<bool>(new[] { "--skip-prompts", "-sp" }, "Will not ask for confirmation before pushing secret");
+    var optionAutoCreateMissingNamespace = new Option<bool>(new[] { "--auto-create-missing-namespace", "-acmn" }, "Will automatically create the namespace if it does not exist");
     var cmd = new Command("push", "Pushes secrets from a local file into kubernetes")
     {
         argumentFile,
         optionContext,
         optionSecret,
-        optionNamespace
+        optionNamespace,
+        optionSkipPrompts,
+        optionAutoCreateMissingNamespace
     };
 
     cmd.SetHandler(
-        (string file, string? context, string? secret, string? @namespace) =>
+        (string file, string? context, string? secret, string? @namespace, bool skipPrompts, bool autoCreateMissingNamespace) =>
         {
-            return Task.FromResult(TryCommand(() => PushCommand.Run(file, context, secret, @namespace)));
+            return Task.FromResult(TryCommand(() => PushCommand.Run(file, context, secret, @namespace, skipPrompts, autoCreateMissingNamespace)));
         },
-        argumentFile, optionContext, optionSecret, optionNamespace);
+        argumentFile, optionContext, optionSecret, optionNamespace, optionSkipPrompts, optionAutoCreateMissingNamespace);
 
     return cmd;
 }
@@ -112,19 +115,23 @@ static Command CreateRestoreCommand()
     var argumentFolder = new Argument<string>("folder", "The folder containing all the secret files to push");
     var optionContext = new Option<string>(new[] { "--context", "-c" }, "The kubectl config context to use");
     var optionRecursive = new Option<bool>(new[] { "--recursive", "-r" }, "Will recursively push secrets");
+    var optionSkipPrompts = new Option<bool>(new[] { "--skip-prompts", "-sp" }, "Will not ask for confirmation before pushing secrets");
+    var optionAutoCreateMissingNamespaces = new Option<bool>(new[] { "--auto-create-missing-namespaces", "-acmn" }, "Will automatically create missing namespaces when pushing secrets");
     var cmd = new Command("restore", "Pushes all secrets in a given folder")
     {
         argumentFolder,
         optionContext,
-        optionRecursive
+        optionRecursive,
+        optionSkipPrompts,
+        optionAutoCreateMissingNamespaces
     };
 
     cmd.SetHandler(
-        (string folder, string? context, bool recursive) =>
+        (string folder, string? context, bool recursive, bool skipPrompts, bool autoCreateMissingNamespaces) =>
         {
-            return Task.FromResult(TryCommand(() => RestoreCommand.Run(folder, context, recursive)));
+            return Task.FromResult(TryCommand(() => RestoreCommand.Run(folder, context, recursive, skipPrompts, autoCreateMissingNamespaces)));
         },
-        argumentFolder, optionContext, optionRecursive);
+        argumentFolder, optionContext, optionRecursive, optionSkipPrompts, optionAutoCreateMissingNamespaces);
 
     return cmd;
 }
