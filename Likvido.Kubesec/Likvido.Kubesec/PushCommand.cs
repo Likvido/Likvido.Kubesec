@@ -185,6 +185,7 @@ public static class PushCommand
         var secretsFile = new SecretsFile();
         var fileContents = File.ReadAllText(file);
 
+        // Extract metadata from headers
         var contextMatch = Regex.Match(fileContents, "# Context: ([^\n\r]*)");
         var secretMatch = Regex.Match(fileContents, "# Secret: ([^\n\r]*)");
         var namespaceMatch = Regex.Match(fileContents, "# Namespace: ([^\n\r]*)");
@@ -204,11 +205,52 @@ public static class PushCommand
             secretsFile.NamespaceFromHeader = namespaceMatch.Groups[1].Value;
         }
 
-        var deserializer = new Deserializer();
-        foreach (var item in deserializer.Deserialize<Dictionary<string, string>>(fileContents))
+        try
         {
-            // trying to keep "\n" in kubernetes but Environment.NewLine locally
-            secretsFile.Secrets.Add(new Secret(item.Key, item.Value.Replace(Environment.NewLine, "\n")));
+            // Try to deserialize using YamlDotNet
+            var deserializer = new Deserializer();
+            foreach (var item in deserializer.Deserialize<Dictionary<string, string>>(fileContents))
+            {
+                // trying to keep "\n" in kubernetes but Environment.NewLine locally
+                secretsFile.Secrets.Add(new Secret(item.Key, item.Value.Replace(Environment.NewLine, "\n")));
+            }
+        }
+        catch (YamlDotNet.Core.YamlException ex)
+        {
+            // If YAML parsing fails, try to handle it as a binary data file
+            Console.WriteLine($"Warning: Standard YAML parsing failed: {ex.Message}");
+            Console.WriteLine("Attempting to process as a Kubernetes binary secret file...");
+
+            try
+            {
+                // Look for binary data in GZip format
+                if (fileContents.Contains(".gz:"))
+                {
+                    // Extract the filename and the compressed content
+                    var match = Regex.Match(fileContents, @"(\w+\.yaml\.gz): >-\s+([^\n]+)");
+                    if (match.Success)
+                    {
+                        string key = match.Groups[1].Value;
+                        string compressedContent = match.Groups[2].Value.Trim();
+
+                        secretsFile.Secrets.Add(new Secret(key, compressedContent));
+                        Console.WriteLine($"Added binary secret with key: {key}");
+                    }
+                    else
+                    {
+                        Console.WriteLine("Could not extract binary data from file.");
+                    }
+                }
+                else
+                {
+                    Console.WriteLine("Unsupported binary format or corrupted file.");
+                }
+            }
+            catch (Exception innerEx)
+            {
+                Console.WriteLine($"Failed to process as binary secret: {innerEx.Message}");
+                throw new Exception($"Cannot parse the secret file: {file}. Neither as YAML nor as binary data.", ex);
+            }
         }
 
         return secretsFile;
