@@ -6,9 +6,9 @@
         <PackAsTool>true</PackAsTool>
         <ToolCommandName>kubesec</ToolCommandName>
         <PackageOutputPath>./nupkg</PackageOutputPath>
-        <Version>1.0.2</Version>
-        <PackageVersion>1.0.2</PackageVersion>
-        <PackageReleaseNotes>Add --exclude-namespace to the backup command</PackageReleaseNotes>
+        <Version>1.1.0</Version>
+        <PackageVersion>1.1.0</PackageVersion>
+        <PackageReleaseNotes>Skip .DS_store files and add some simple handling of some secrets with binary data (.gz)</PackageReleaseNotes>
         <ImplicitUsings>enable</ImplicitUsings>
         <Nullable>enable</Nullable>
         <NoWarn>1701;1702;1591</NoWarn>

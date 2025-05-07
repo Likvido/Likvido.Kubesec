@@ -175,6 +175,6 @@ If you do not specify `--auto-create-missing-namespaces`, then it will not creat
 
 To release a new version to NuGet, run through these steps:
 
-1. Update the version number and release noted in the project file `Likvido.Kubesec/Likvido.Kubesec/Likvido.Kubesec.csproj`
+1. Update the version number and release notes in the project file `Likvido.Kubesec/Likvido.Kubesec/Likvido.Kubesec.csproj`
 2. Run the command: `dotnet pack Likvido.Kubesec/Likvido.Kubesec/Likvido.Kubesec.csproj`
 3. Go to https://www.nuget.org/packages/manage/upload and upload the resulting nupkg file
