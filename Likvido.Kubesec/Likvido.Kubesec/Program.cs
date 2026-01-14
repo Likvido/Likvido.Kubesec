@@ -44,13 +44,13 @@ static Command CreatePullCommand()
         if (configurePortForwarding && string.IsNullOrWhiteSpace(unwrapKeyName))
         {
             Console.WriteLine("When using the port-forward flag, you also have to specify the unwrap-key option");
-            return await Task.FromResult(0);
+            return 1;
         }
 
         if (jsonFieldsToDelete != null && string.IsNullOrWhiteSpace(unwrapKeyName))
         {
             Console.WriteLine("When using the remove-json-fields option, you also have to specify the unwrap-key option");
-            return await Task.FromResult(0);
+            return 1;
         }
 
         return await TryCommandAsync(() => PullCommand.Run(secret, configurePortForwarding, output, context, @namespace, unwrapKeyName, jsonFieldsToDelete));
