@@ -9,7 +9,7 @@ var rootCommand = new RootCommand("Kubernetes secret configuration helper")
     CreateRestoreCommand()
 };
 
-return rootCommand.Parse(args).Invoke();
+return await rootCommand.Parse(args).InvokeAsync();
 
 static Command CreatePullCommand()
 {
