@@ -176,7 +176,7 @@ If you do not specify `--auto-create-missing-namespaces`, then it will not creat
 
 Search for secrets containing a specific value across all secrets in the cluster. This is useful for discovering which secrets contain a particular API key, password, or configuration value before rotating it.
 
-```
+```bash
 kubesec find <search-term> --context <kubectl-context-name>
 ```
 
@@ -187,23 +187,23 @@ There are three more options that you can add to the command:
 
 If you do not specify `--context`, then it will use whatever context is currently active in kubectl.
 
-#### Examples
+### Examples
 
 a) This command will search for "OpenAI" in all secrets in a cluster with the kubectl context name `production`:
 
-```
+```bash
 kubesec find "OpenAI" --context production
 ```
 
 b) This command will search for an API key in all secrets within the `likvido-api` namespace:
 
-```
+```bash
 kubesec find "sk-<your-api-key>" --namespace likvido-api --context production
 ```
 
 The output shows each matching secret with context lines around the match:
 
-```
+```text
 Finding: OpenAI
 =============================================
 
@@ -220,7 +220,7 @@ Finding: OpenAI
 
 Replace a specific value across all secrets in the cluster. This is useful for rotating API keys, passwords, or other credentials that are used by multiple services.
 
-```
+```bash
 kubesec update-value --old <old-value> --new <new-value> --context <kubectl-context-name>
 ```
 
@@ -241,29 +241,29 @@ Additional options:
 
 If you do not specify `--context`, then it will use whatever context is currently active in kubectl.
 
-#### Examples
+### Examples
 
 a) Preview what would be changed when rotating an API key (dry run):
 
-```
+```bash
 kubesec update-value --old "sk-oldkey123" --new "sk-newkey456" --context production --dry-run
 ```
 
 b) Rotate an API key across all secrets:
 
-```
+```bash
 kubesec update-value --old "sk-oldkey123" --new "sk-newkey456" --context production
 ```
 
 c) Rotate an API key only in a specific namespace:
 
-```
+```bash
 kubesec update-value --old "sk-oldkey123" --new "sk-newkey456" --namespace likvido-api --context production
 ```
 
 The output shows a preview of all changes and asks for confirmation:
 
-```
+```text
 =============================================
 Replace Values
 =============================================
@@ -300,7 +300,7 @@ Rollback: kubesec restore -c production kubesec-rollback-20260115-143022/
 
 If something goes wrong, you can rollback using the restore command with the backup folder that was created:
 
-```
+```bash
 kubesec restore kubesec-rollback-20260115-143022/ --context production --recursive
 ```
 
