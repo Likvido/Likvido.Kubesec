@@ -13,7 +13,8 @@ public static class PullCommand
         string? context = null,
         string? @namespace = null,
         string? unwrapKeyName = null,
-        List<string>? jsonFieldsToDelete = null)
+        List<string>? jsonFieldsToDelete = null,
+        CancellationToken cancellationToken = default)
     {
         var portForwardingStarted = false;
         var kubeCtl = new KubeCtl(context);
@@ -81,9 +82,9 @@ public static class PullCommand
             try
             {
                 Console.WriteLine("Port forwarding configured. To stop the port forwarding, kill kubesec");
-                await Task.Delay(Timeout.Infinite).ConfigureAwait(false);
+                await Task.Delay(Timeout.Infinite, cancellationToken).ConfigureAwait(false);
             }
-            catch(TaskCanceledException) { /* Ignored */ }
+            catch (TaskCanceledException) { /* Ignored */ }
         }
 
         return 0;
