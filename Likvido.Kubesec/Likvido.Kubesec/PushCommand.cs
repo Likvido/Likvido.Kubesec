@@ -103,7 +103,7 @@ public static class PushCommand
         return 0;
     }
 
-    private static string CreateSecretsTempFile(string secretName, string @namespace, IReadOnlyList<Secret> secrets)
+    public static string CreateSecretsTempFile(string secretName, string @namespace, IReadOnlyList<Secret> secrets)
     {
         var contentBuilder = new StringBuilder();
 
