@@ -1,14 +1,8 @@
 ﻿namespace Likvido.Kubesec;
 
-public class Secret
+public class Secret(string name, string value)
 {
-    public Secret(string name, string value)
-    {
-        Name = name;
-        Value = value;
-    }
+    public string Name { get; } = name;
 
-    public string Name { get; }
-
-    public string Value { get; set; }
+    public string Value { get; set; } = value;
 }
