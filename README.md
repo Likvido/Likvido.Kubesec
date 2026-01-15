@@ -172,6 +172,138 @@ If you do not specify `--recursive`, then it will only restore the files in the 
 If you do not specify `--skip-prompts`, then it will ask you for confirmation before pushing the secrets\
 If you do not specify `--auto-create-missing-namespaces`, then it will not create the namespaces if they do not exist
 
+## Find
+
+Search for secrets containing a specific value across all secrets in the cluster. This is useful for discovering which secrets contain a particular API key, password, or configuration value before rotating it.
+
+```
+kubesec find <search-term> --context <kubectl-context-name>
+```
+
+There are three more options that you can add to the command:
+1. `--namespace <kubectl-namespace>` - Will search in a specific namespace
+2. `--namespace-includes <keyword>` - Will search in namespaces that include the specified keyword
+3. `--namespace-regex <regex>` - Will search in namespaces that match the specified regex
+
+If you do not specify `--context`, then it will use whatever context is currently active in kubectl.
+
+#### Examples
+
+a) This command will search for "OpenAI" in all secrets in a cluster with the kubectl context name `production`:
+
+```
+kubesec find "OpenAI" --context production
+```
+
+b) This command will search for an API key in all secrets within the `likvido-api` namespace:
+
+```
+kubesec find "sk-<your-api-key>" --namespace likvido-api --context production
+```
+
+The output shows each matching secret with context lines around the match:
+
+```
+Finding: OpenAI
+=============================================
+
+> default/likvidoapp-internalapi
+  Key: appsettings.json
+  Line 57:
+    },
+>   "OpenAI": {
+      "ApiKey": "sk-..."
+    },
+```
+
+## Update Value
+
+Replace a specific value across all secrets in the cluster. This is useful for rotating API keys, passwords, or other credentials that are used by multiple services.
+
+```
+kubesec update-value --old <old-value> --new <new-value> --context <kubectl-context-name>
+```
+
+The command will:
+1. Create an automatic backup to `kubesec-rollback-<timestamp>/`
+2. Search for all secrets containing the old value
+3. Show a preview of all changes that will be made
+4. Ask for confirmation before applying
+5. Apply the changes to the cluster
+6. Show rollback instructions
+
+Additional options:
+- `--namespace <kubectl-namespace>` - Only update secrets in a specific namespace
+- `--namespace-includes <keyword>` - Only update secrets in namespaces that include the specified keyword
+- `--namespace-regex <regex>` - Only update secrets in namespaces that match the specified regex
+- `--skip-prompts` - Skip the confirmation prompt (useful for CI/CD)
+- `--dry-run` - Show what would be changed without making actual changes
+
+If you do not specify `--context`, then it will use whatever context is currently active in kubectl.
+
+#### Examples
+
+a) Preview what would be changed when rotating an API key (dry run):
+
+```
+kubesec update-value --old "sk-oldkey123" --new "sk-newkey456" --context production --dry-run
+```
+
+b) Rotate an API key across all secrets:
+
+```
+kubesec update-value --old "sk-oldkey123" --new "sk-newkey456" --context production
+```
+
+c) Rotate an API key only in a specific namespace:
+
+```
+kubesec update-value --old "sk-oldkey123" --new "sk-newkey456" --namespace likvido-api --context production
+```
+
+The output shows a preview of all changes and asks for confirmation:
+
+```
+=============================================
+Replace Values
+=============================================
+
+Old value: sk-oldkey123
+New value: sk-newkey456
+
+Creating backup to kubesec-rollback-20260115-143022/
+
+Finding secrets containing the old value...
+
+Found 3 secret(s) containing the value
+
+> default/likvidoapp-internalapi
+  1 occurrence(s) will be replaced
+  Line 58:
+    - "ApiKey": "sk-oldkey123"
+    + "ApiKey": "sk-newkey456"
+
+...
+
+Apply changes? [y/N] y
+
+Updating secrets...
+  OK default/likvidoapp-internalapi
+  OK default/likvidoapp-webappapi
+
+=============================================
+Done! Updated 3 secret(s).
+=============================================
+
+Rollback: kubesec restore -c production kubesec-rollback-20260115-143022/
+```
+
+If something goes wrong, you can rollback using the restore command with the backup folder that was created:
+
+```
+kubesec restore kubesec-rollback-20260115-143022/ --context production --recursive
+```
+
 ## Releasing a new version
 
 To release a new version to NuGet, run through these steps:
