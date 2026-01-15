@@ -6,9 +6,9 @@
         <PackAsTool>true</PackAsTool>
         <ToolCommandName>kubesec</ToolCommandName>
         <PackageOutputPath>./nupkg</PackageOutputPath>
-        <Version>1.1.0</Version>
-        <PackageVersion>1.1.0</PackageVersion>
-        <PackageReleaseNotes>Skip .DS_store files and add some simple handling of some secrets with binary data (.gz)</PackageReleaseNotes>
+        <Version>2.0.0</Version>
+        <PackageVersion>2.0.0</PackageVersion>
+        <PackageReleaseNotes>Add 'find' command to search for values across secrets. Add 'update-value' command for bulk secret rotation with automatic backup and rollback support.</PackageReleaseNotes>
         <ImplicitUsings>enable</ImplicitUsings>
         <Nullable>enable</Nullable>
         <NoWarn>1701;1702;1591</NoWarn>
