@@ -6,15 +6,8 @@ using Newtonsoft.Json;
 
 namespace Likvido.Kubesec;
 
-public class KubeCtl
+public class KubeCtl(string? context)
 {
-    private readonly string? context;
-
-    public KubeCtl(string? context)
-    {
-        this.context = context;
-    }
-
     public IReadOnlyList<Secret> GetSecrets(string secretsName, string @namespace)
     {
         var command = $"get secret {secretsName} -n {@namespace} -o json";
@@ -34,7 +27,7 @@ public class KubeCtl
 
     public Dictionary<(string Namespace, string Name), IReadOnlyList<Secret>> GetNamespacesWithSecrets(
         string? @namespace = null, string? namespaceIncludes = null, string? namespaceRegex = null,
-        string[]? excludedNamespaces = null)
+        string[]? excludedNamespaces = null, CancellationToken cancellationToken = default)
     {
         var allSecretsDictionary = new Dictionary<(string, string), IReadOnlyList<Secret>>();
         Func<string, bool>? filter = null;
@@ -57,6 +50,8 @@ public class KubeCtl
             filter = f => !excludedNamespaces.Contains(f);
         }
 
+        cancellationToken.ThrowIfCancellationRequested();
+
         var filteredNamespaces = GetExistingNamespaces();
 
         if (filter != null)
@@ -66,6 +61,8 @@ public class KubeCtl
 
         foreach (var namespaceItem in filteredNamespaces)
         {
+            cancellationToken.ThrowIfCancellationRequested();
+
             var command = $"get secrets -o json -n={namespaceItem}";
             var result = ExecuteCommand(command, waitingTimeSeconds: 5);
             dynamic deserialized =
