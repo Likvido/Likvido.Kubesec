@@ -16,6 +16,10 @@
     </PropertyGroup>
 
     <ItemGroup>
+        <InternalsVisibleTo Include="Likvido.Kubesec.Tests" />
+    </ItemGroup>
+
+    <ItemGroup>
         <PackageReference Include="Newtonsoft.Json" Version="13.0.4" />
         <PackageReference Include="Spectre.Console" Version="0.54.0" />
         <PackageReference Include="System.CommandLine" Version="2.0.2" />
