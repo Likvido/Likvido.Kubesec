@@ -45,7 +45,7 @@ public class KubeCtl(string? context)
             var regexPattern = new Regex(namespaceRegex);
             filter = f => regexPattern.IsMatch(f);
         }
-        else if (excludedNamespaces != null)
+        else if (excludedNamespaces is { Length: > 0 })
         {
             filter = f => !excludedNamespaces.Contains(f);
         }
