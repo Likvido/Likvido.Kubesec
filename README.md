@@ -304,6 +304,16 @@ If something goes wrong, you can rollback using the restore command with the bac
 kubesec restore kubesec-rollback-20260115-143022/ --context production --recursive
 ```
 
+## Running the tests
+
+```bash
+dotnet test Likvido.Kubesec/Likvido.Kubesec.sln
+```
+
+The same tests run on every pull request via the `Test Runner` workflow, which uses the shared
+[likvido/action-test](https://github.com/Likvido/action-test) action. Failures show up as
+annotations directly on the pull request.
+
 ## Releasing a new version
 
 To release a new version to NuGet, run through these steps:
