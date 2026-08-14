@@ -1,4 +1,5 @@
 ﻿using System.Text.RegularExpressions;
+using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using Spectre.Console;
 
@@ -6,6 +7,26 @@ namespace Likvido.Kubesec;
 
 public static class PullCommand
 {
+    /// <summary>
+    /// Validates the combination of options given to the pull command. Returns the error message to
+    /// show the user, or null if the combination is valid.
+    /// </summary>
+    public static string? Validate(bool configurePortForwarding, string? unwrapKeyName, IReadOnlyList<string>? jsonFieldsToDelete)
+    {
+        if (configurePortForwarding && string.IsNullOrWhiteSpace(unwrapKeyName))
+        {
+            return "When using the port-forward flag, you also have to specify the unwrap-key option";
+        }
+
+        // An option that was not supplied comes back as an empty list, not null
+        if (jsonFieldsToDelete is { Count: > 0 } && string.IsNullOrWhiteSpace(unwrapKeyName))
+        {
+            return "When using the remove-json-fields option, you also have to specify the unwrap-key option";
+        }
+
+        return null;
+    }
+
     public static async Task<int> Run(
         string secretsName,
         bool configurePortForwarding,
@@ -46,7 +67,7 @@ public static class PullCommand
                 return 0;
             }
 
-            if (jsonFieldsToDelete != null)
+            if (jsonFieldsToDelete is { Count: > 0 })
             {
                 RemoveJsonFields(secret, jsonFieldsToDelete);
             }
@@ -90,9 +111,18 @@ public static class PullCommand
         return 0;
     }
 
-    private static void RemoveJsonFields(Secret secret, List<string> jsonFieldsToDelete)
+    internal static void RemoveJsonFields(Secret secret, IReadOnlyList<string> jsonFieldsToDelete)
     {
-        var secretValueJson = JObject.Parse(secret.Value);
+        JObject secretValueJson;
+
+        try
+        {
+            secretValueJson = JObject.Parse(secret.Value);
+        }
+        catch (JsonReaderException exception)
+        {
+            throw new InvalidOperationException($"The value of the key '{secret.Name}' is not valid JSON, so the remove-json-field option cannot be used with it", exception);
+        }
 
         foreach (var jsonFieldExpression in jsonFieldsToDelete)
         {
