@@ -310,7 +310,7 @@ kubesec restore kubesec-rollback-20260115-143022/ --context production --recursi
 dotnet test Likvido.Kubesec/Likvido.Kubesec.sln
 ```
 
-The same tests run on every pull request via the `Test Runner` workflow, which uses the shared
+The same tests run on pull requests targeting `master` via the `Test Runner` workflow, which uses the shared
 [likvido/action-test](https://github.com/Likvido/action-test) action. Failures show up as
 annotations directly on the pull request.
 
