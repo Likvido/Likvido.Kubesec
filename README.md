@@ -323,9 +323,11 @@ Releasing is automated, so there is nothing to pack or upload by hand:
 3. Merge to `master`
 
 The `Publish to nuget` workflow then packs the tool and pushes it to nuget.org, using the shared
-[likvido/action-nuget](https://github.com/Likvido/action-nuget) action. It only triggers when
-`version.props` changes, so merges that leave the version alone — a dependency bump, say — never
-attempt a publish.
+[likvido/action-nuget](https://github.com/Likvido/action-nuget) action. It triggers on changes to
+`version.props` or to the workflow itself, so an ordinary merge — a dependency bump, say — never
+attempts a publish. A version that is already on nuget.org is skipped rather than treated as a
+failure, which is what makes it safe to re-run: if a release fails for some unrelated reason, fixing
+the workflow and merging that fix retries the publish without needing another version bump.
 
 Authentication uses [Trusted Publishing](https://learn.microsoft.com/en-us/nuget/nuget-org/trusted-publishing):
 nuget.org issues a short-lived key at publish time, so no API key is stored in this repository. The
