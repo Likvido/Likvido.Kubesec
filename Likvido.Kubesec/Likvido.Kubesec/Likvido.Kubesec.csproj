@@ -6,7 +6,14 @@
         <PackAsTool>true</PackAsTool>
         <ToolCommandName>kubesec</ToolCommandName>
         <PackageOutputPath>./nupkg</PackageOutputPath>
-        <PackageReleaseNotes>Fix the 'pull' command, which was completely broken in 2.0.0: an unsupplied --remove-json-field option was treated as supplied, so every pull either demanded --unwrap-key or tried to parse the secret value as JSON.</PackageReleaseNotes>
+        <Authors>Likvido</Authors>
+        <Description>Tool to ease the management of Kubernetes secrets. Pull secrets to a local file, push them back, search across the cluster, rotate values in bulk, and back up or restore whole namespaces.</Description>
+        <PackageReadmeFile>README.md</PackageReadmeFile>
+        <PackageLicenseExpression>MIT</PackageLicenseExpression>
+        <PackageProjectUrl>https://github.com/Likvido/Likvido.Kubesec</PackageProjectUrl>
+        <RepositoryUrl>https://github.com/Likvido/Likvido.Kubesec</RepositoryUrl>
+        <RepositoryType>git</RepositoryType>
+        <PackageReleaseNotes>Ship the README, license and a real description with the package, so the nuget.org page documents the tool instead of showing a placeholder.</PackageReleaseNotes>
         <ImplicitUsings>enable</ImplicitUsings>
         <Nullable>enable</Nullable>
         <NoWarn>1701;1702;1591</NoWarn>
@@ -17,6 +24,11 @@
 
     <ItemGroup>
         <InternalsVisibleTo Include="Likvido.Kubesec.Tests" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <!-- The readme lives at the repository root, two levels above this project -->
+        <None Include="../../README.md" Pack="true" PackagePath="\" />
     </ItemGroup>
 
     <ItemGroup>
