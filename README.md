@@ -316,8 +316,18 @@ annotations directly on the pull request.
 
 ## Releasing a new version
 
-To release a new version to NuGet, run through these steps:
+Releasing is automated, so there is nothing to pack or upload by hand:
 
-1. Update the version number and release notes in the project file `Likvido.Kubesec/Likvido.Kubesec/Likvido.Kubesec.csproj`
-2. Run the command: `dotnet pack Likvido.Kubesec/Likvido.Kubesec/Likvido.Kubesec.csproj`
-3. Go to https://www.nuget.org/packages/manage/upload and upload the resulting nupkg file
+1. Bump `<Version>` in `Likvido.Kubesec/version.props`
+2. Update `PackageReleaseNotes` in `Likvido.Kubesec/Likvido.Kubesec/Likvido.Kubesec.csproj`
+3. Merge to `master`
+
+The `Publish to nuget` workflow then packs the tool and pushes it to nuget.org, using the shared
+[likvido/action-nuget](https://github.com/Likvido/action-nuget) action. It only triggers when
+`version.props` changes, so merges that leave the version alone — a dependency bump, say — never
+attempt a publish.
+
+Authentication uses [Trusted Publishing](https://learn.microsoft.com/en-us/nuget/nuget-org/trusted-publishing):
+nuget.org issues a short-lived key at publish time, so no API key is stored in this repository. The
+matching policy is registered on nuget.org under the package owner and is tied to the `nuget.yml`
+file name — renaming that workflow breaks publishing until the policy is updated to match.
