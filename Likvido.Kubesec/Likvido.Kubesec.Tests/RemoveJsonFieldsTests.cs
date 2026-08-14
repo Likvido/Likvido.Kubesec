@@ -18,8 +18,8 @@ public class RemoveJsonFieldsTests
         // Assert
         var result = JObject.Parse(secret.Value);
         result.SelectToken("ConnectionStrings.Db").ShouldBeNull();
-        result.SelectToken("ConnectionStrings.Cache")?.Value<string>().ShouldBe("keep");
-        result.SelectToken("Other")?.Value<int>().ShouldBe(1);
+        result.SelectToken("ConnectionStrings.Cache").ShouldNotBeNull().Value<string>().ShouldBe("keep");
+        result.SelectToken("Other").ShouldNotBeNull().Value<int>().ShouldBe(1);
     }
 
     [Fact]
@@ -34,7 +34,7 @@ public class RemoveJsonFieldsTests
         // Assert
         var result = JObject.Parse(secret.Value);
         result.SelectToken("Remove").ShouldBeNull();
-        result.SelectToken("Keep")?.Value<string>().ShouldBe("me");
+        result.SelectToken("Keep").ShouldNotBeNull().Value<string>().ShouldBe("me");
     }
 
     [Fact]
@@ -47,7 +47,7 @@ public class RemoveJsonFieldsTests
         PullCommand.RemoveJsonFields(secret, ["Does.Not.Exist"]);
 
         // Assert
-        JObject.Parse(secret.Value).SelectToken("Keep")?.Value<string>().ShouldBe("me");
+        JObject.Parse(secret.Value).SelectToken("Keep").ShouldNotBeNull().Value<string>().ShouldBe("me");
     }
 
     [Fact]
