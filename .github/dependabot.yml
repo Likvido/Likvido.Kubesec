@@ -1,0 +1,21 @@
+version: 2
+updates:
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: daily
+    # Group all dependencies into a single PR
+    groups:
+      github-actions:
+        patterns:
+          - "*"
+  - package-ecosystem: nuget
+    # This repository keeps its solution here rather than in /src like most of the others
+    directory: /Likvido.Kubesec
+    schedule:
+      interval: daily
+    # Group all dependencies into a single PR
+    groups:
+      nuget-dependencies:
+        patterns:
+          - "*"

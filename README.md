@@ -304,10 +304,32 @@ If something goes wrong, you can rollback using the restore command with the bac
 kubesec restore kubesec-rollback-20260115-143022/ --context production --recursive
 ```
 
+## Running the tests
+
+```bash
+dotnet test Likvido.Kubesec/Likvido.Kubesec.sln
+```
+
+The same tests run on pull requests targeting `master` via the `Test Runner` workflow, which uses the shared
+[likvido/action-test](https://github.com/Likvido/action-test) action. Failures show up as
+annotations directly on the pull request.
+
 ## Releasing a new version
 
-To release a new version to NuGet, run through these steps:
+Releasing is automated, so there is nothing to pack or upload by hand:
 
-1. Update the version number and release notes in the project file `Likvido.Kubesec/Likvido.Kubesec/Likvido.Kubesec.csproj`
-2. Run the command: `dotnet pack Likvido.Kubesec/Likvido.Kubesec/Likvido.Kubesec.csproj`
-3. Go to https://www.nuget.org/packages/manage/upload and upload the resulting nupkg file
+1. Bump `<Version>` in `Likvido.Kubesec/version.props`
+2. Update `PackageReleaseNotes` in `Likvido.Kubesec/Likvido.Kubesec/Likvido.Kubesec.csproj`
+3. Merge to `master`
+
+The `Publish to nuget` workflow then packs the tool and pushes it to nuget.org, using the shared
+[likvido/action-nuget](https://github.com/Likvido/action-nuget) action. It triggers on changes to
+`version.props` or to the workflow itself, so an ordinary merge — a dependency bump, say — never
+attempts a publish. A version that is already on nuget.org is skipped rather than treated as a
+failure, which is what makes it safe to re-run: if a release fails for some unrelated reason, fixing
+the workflow and merging that fix retries the publish without needing another version bump.
+
+Authentication uses [Trusted Publishing](https://learn.microsoft.com/en-us/nuget/nuget-org/trusted-publishing):
+nuget.org issues a short-lived key at publish time, so no API key is stored in this repository. The
+matching policy is registered on nuget.org under the package owner and is tied to the `nuget.yml`
+file name — renaming that workflow breaks publishing until the policy is updated to match.

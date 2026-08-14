@@ -6,14 +6,18 @@
         <PackAsTool>true</PackAsTool>
         <ToolCommandName>kubesec</ToolCommandName>
         <PackageOutputPath>./nupkg</PackageOutputPath>
-        <Version>2.0.0</Version>
-        <PackageVersion>2.0.0</PackageVersion>
-        <PackageReleaseNotes>Add 'find' command to search for values across secrets. Add 'update-value' command for bulk secret rotation with automatic backup and rollback support.</PackageReleaseNotes>
+        <PackageReleaseNotes>Fix the 'pull' command, which was completely broken in 2.0.0: an unsupplied --remove-json-field option was treated as supplied, so every pull either demanded --unwrap-key or tried to parse the secret value as JSON.</PackageReleaseNotes>
         <ImplicitUsings>enable</ImplicitUsings>
         <Nullable>enable</Nullable>
         <NoWarn>1701;1702;1591</NoWarn>
         <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
     </PropertyGroup>
+
+    <Import Project="$(ProjectDir)../version.props" />
+
+    <ItemGroup>
+        <InternalsVisibleTo Include="Likvido.Kubesec.Tests" />
+    </ItemGroup>
 
     <ItemGroup>
         <PackageReference Include="Newtonsoft.Json" Version="13.0.4" />
