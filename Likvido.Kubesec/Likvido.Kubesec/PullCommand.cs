@@ -34,7 +34,7 @@ public static class PullCommand
         string? context = null,
         string? @namespace = null,
         string? unwrapKeyName = null,
-        List<string>? jsonFieldsToDelete = null,
+        IReadOnlyList<string>? jsonFieldsToDelete = null,
         CancellationToken cancellationToken = default)
     {
         var portForwardingStarted = false;
