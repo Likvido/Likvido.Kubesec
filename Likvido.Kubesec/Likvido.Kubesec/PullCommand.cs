@@ -21,7 +21,7 @@ public static class PullCommand
         // An option that was not supplied comes back as an empty list, not null
         if (jsonFieldsToDelete is { Count: > 0 } && string.IsNullOrWhiteSpace(unwrapKeyName))
         {
-            return "When using the remove-json-fields option, you also have to specify the unwrap-key option";
+            return "When using the remove-json-field option, you also have to specify the unwrap-key option";
         }
 
         return null;

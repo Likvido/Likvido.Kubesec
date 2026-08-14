@@ -37,7 +37,7 @@ public class PullCommandValidateTests
         var result = PullCommand.Validate(configurePortForwarding: false, unwrapKeyName: null, new List<string> { "a.b" });
 
         // Assert
-        result.ShouldBe("When using the remove-json-fields option, you also have to specify the unwrap-key option");
+        result.ShouldBe("When using the remove-json-field option, you also have to specify the unwrap-key option");
     }
 
     [Fact]

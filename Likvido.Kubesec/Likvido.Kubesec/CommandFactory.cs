@@ -51,7 +51,7 @@ public static class CommandFactory
 
             if (validationError != null)
             {
-                Console.WriteLine(validationError);
+                Console.Error.WriteLine(validationError);
                 return 1;
             }
 
