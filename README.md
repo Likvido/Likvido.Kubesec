@@ -307,7 +307,7 @@ kubesec restore kubesec-rollback-20260115-143022/ --context production --recursi
 ## Running the tests
 
 ```bash
-dotnet test Likvido.Kubesec/Likvido.Kubesec.sln
+dotnet test --solution Likvido.Kubesec/Likvido.Kubesec.sln
 ```
 
 The same tests run on pull requests targeting `master` via the `Test Runner` workflow, which uses the shared
