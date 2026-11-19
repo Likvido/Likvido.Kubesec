@@ -2,7 +2,7 @@
 
     <PropertyGroup>
         <OutputType>Exe</OutputType>
-        <TargetFrameworks>net10.0;net11.0</TargetFrameworks>
+        <TargetFramework>net11.0</TargetFramework>
         <PackAsTool>true</PackAsTool>
         <ToolCommandName>kubesec</ToolCommandName>
         <PackageOutputPath>./nupkg</PackageOutputPath>
@@ -13,7 +13,7 @@
         <PackageProjectUrl>https://github.com/Likvido/Likvido.Kubesec</PackageProjectUrl>
         <RepositoryUrl>https://github.com/Likvido/Likvido.Kubesec</RepositoryUrl>
         <RepositoryType>git</RepositoryType>
-        <PackageReleaseNotes>Ship a .NET 11 build of the tool next to the .NET 10 one, so it runs on a machine with only the .NET 11 runtime.</PackageReleaseNotes>
+        <PackageReleaseNotes>The tool now targets .NET 11 only, so it needs the .NET 11 runtime.</PackageReleaseNotes>
         <ImplicitUsings>enable</ImplicitUsings>
         <Nullable>enable</Nullable>
         <NoWarn>1701;1702;1591</NoWarn>
@@ -34,7 +34,7 @@
     <ItemGroup>
         <PackageReference Include="Newtonsoft.Json" Version="13.0.4" />
         <PackageReference Include="Spectre.Console" Version="0.57.2" />
-        <PackageReference Include="System.CommandLine" Version="2.0.14" />
+        <PackageReference Include="System.CommandLine" Version="3.0.0" />
         <PackageReference Include="YamlDotNet" Version="18.1.0" />
     </ItemGroup>
 

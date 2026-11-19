@@ -2,7 +2,7 @@
 Tool to ease the management of Kubernetes secrets
 
 ## Requirements
-- [.NET 10 SDK](https://dotnet.microsoft.com/download/dotnet/10.0) or later
+- [.NET 11 SDK](https://dotnet.microsoft.com/download/dotnet/11.0) or later
 - [kubectl](https://kubernetes.io/docs/tasks/tools/install-kubectl/) needs to be installed and configured for your cluster
 
 ## Installation
