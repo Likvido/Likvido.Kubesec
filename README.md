@@ -2,7 +2,7 @@
 Tool to ease the management of Kubernetes secrets
 
 ## Requirements
-- [.NET 10 SDK](https://dotnet.microsoft.com/download/dotnet/10.0) or later
+- [.NET 11 SDK](https://dotnet.microsoft.com/download/dotnet/11.0) to install the tool, and the .NET 11 runtime to run it (the SDK includes it). A later major version alone is not enough, because a .NET tool does not roll forward to a new major version by default
 - [kubectl](https://kubernetes.io/docs/tasks/tools/install-kubectl/) needs to be installed and configured for your cluster
 
 ## Installation
